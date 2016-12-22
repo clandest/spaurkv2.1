@@ -1,0 +1,120 @@
+<!doctype html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="/style.css" rel="stylesheet">	
+		<link href="/nouislider.min.css" rel="stylesheet">	
+		<link href="https://fonts.googleapis.com/css?family=Cabin" rel="stylesheet">
+	</head>
+	<body>
+    <div class="message"> 
+    {% block message %} {{ messages }} {% endblock %}
+    </div>
+		<div class="row">
+			<header class="col-12">
+				<img src="/images/spaurk_logo.png">
+				<div class="bannerUser desktop-only">
+					<span>Username:</span>
+					<span>Password:</span>
+					<form action="/login" method="post">
+						<input type="text" name="username" >
+						<input type="password" name="password" >
+						<div id="clear"></div>
+						<input type="submit" name="login" value="login" >
+						<a href="/register" id="register">register</a>
+					</form>
+				</div>
+				<div class="bannerUser mobile-only">
+					<a href="#">Login</a>
+					<a href="#">Register</a>
+				</div>
+			</header>
+		</div>
+		<div class="row">
+			<main class="col-12">
+		{% block profile  %}
+	<form name="profileForm" id="profileForm" action="" method="POST" enctype="multipart/form-data">
+	<input type="file" id="imageElem" name="image" accept="image/*" style="display:none" onchange="handleImage(this.files)">
+  </form>
+
+		<div class="editProfile">
+			<div class="profileImage">
+				<img id="profileImage" src="/uploads/{{ profileImage }}" height="100px" width="100px">
+			</div>
+			<div class="edit"><img src="/images/edit_icon.png" width="20px" height="20px"></div>
+		</div>
+		<span class="profileName">{{ userProfile }}</span>
+		<div class="profileSocial">
+      {% if  user != userProfile %}
+      <div class="follow"><a href="/follows/{{ profileUserId }}" class="addFollow" id="follow">[ Follow ]</a></div>{% endif %}
+			<div id="sound-cloud"></div>
+			<div id="band-camp"></div>
+			<div id="twitter"></div>
+		</div>
+    <div class="aboutField" id="about" data-token="0"><p id="aboutContext">{% if about %}{{ about }}{% else %} Profile user  needs to customize this About info {% endif %}</p>
+		</div>
+		<div class="flashBanner" id="flashBanner" data-token="0"><p id="flashBannerContext">{% if flashBanner %}{{ flashBanner }}{% else %} Profile user needs to customize this short info field {% endif %}</p>
+		</div>	
+		{% endblock %}
+		{% block profileNav %}
+		<div class="row">
+			<nav class="col-12 profile">
+				<ul>
+					<li><a href="/main">Main</a></li>
+					<li><a href="/watchlist">Watchlist</a></li>
+					<li><a href="/comments">Comments</a></li>
+					<li><a href="/following">Following</a></li>
+					<li><a href="/followers">Followers</a></li>
+					<li class="rightFloat desktop-only"><a href="/upload">New Post</a></li>
+				</ul>
+			</nav>
+		</div>
+		{% endblock %}
+		{% block nav %}
+		<div class="row">
+			<nav class="col-12">
+				<ul>
+					<li><a href="#">Front Page</a></li>
+					<li><a href="#">All</a></li>
+					<li><a href="#">Genre: ----</a></li>
+					<li class="rightFloat desktop-only"><a href="/upload">New Post</a></li>
+					<li class="rightFloat"><a href="#">Subscribe to Genre</a></li>
+				</ul>
+			</nav>
+		</div>
+		{% endblock %}
+			{% block main %}
+				<div class="row">
+					<div class="post" id="Discover" data-id="{{ post._id }}"> <!-- START OF POST -->
+						<div class="postHeader">
+							<div class="postTitle">THis is the title</div>
+							<div class="postArtist">this is the aritst</div>
+						</div>
+						<div class="postBody">
+							<span id="playBtn" class="playButton play" data-id="{{ post._id }}"></span>
+						</div>
+						<div class="postFooter">
+							<div class="postMenu">
+								<ul>
+									<li><a href="#"><span id="watchlist" class="watch"></span></a></li>
+									<li><a href="#"><span id="watchlist" class="watch"></span></a></li>
+									<li><a href="#"><span id="watchlist" class="watch"></span></a></li>
+									<div class="dropdown">
+										<li><a href="#"><img src="/images/menu.png"></a></li>
+										<div class="dropdown-content">
+											<a href="#{{ post.category }}" id="{{ post.category }}">Category: Discovery</a>
+											<a href="#{{ post.genre }}">Genre: {{ post.genre }}</a>
+											<img src="/uploads/{{ post.profileImage }}" width="25px" height="25px">
+											<a href="/p/{{ post.username }}">{{ post.username }}</a>
+										</div>
+									</div>
+								</ul>
+							</div>
+						</div>
+					</div> <!-- END OF POST -->
+				</div>
+			{% endblock  %}
+			</main>
+		</div>
+	</body>
+</html>

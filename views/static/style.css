@@ -1,0 +1,758 @@
+*{
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+body{
+	font-family: 'Cabin', sans-serif;
+	background-color: black;
+	color: white;
+	margin: 0 auto;
+}
+
+ul{
+	list-style-type: none;
+}
+
+main{
+	position: relative;
+}
+.row::after{
+	content: "";
+	clear: both;
+	display: table;
+}
+
+[class*="col-"]{
+	float: left;
+	padding: 15px;
+}
+
+[class*="col-"]{
+	width: 100%;
+}
+	nav ul{
+		list-style-type: none;
+	}
+
+	nav li{
+		font-size: 1.5em;
+		text-align: right;
+	}
+
+	nav li a{
+		text-align: center;
+		padding: 5px 5px;
+		text-decoration: none;
+		color: white;
+	}
+
+	nav li a:hover{
+		background-color: #4b90bc;
+
+	}
+
+.post{
+    width: 100%;
+    height: 150px;
+    display: inline-block;
+		border-radius: 1px 30px;
+		position: relative;
+		margin-bottom: 5px;
+}
+	.postHeader{
+		height: 25px;
+		position: relative;
+		text-align: center;
+	}
+
+	.postBody{
+		height: 100px;
+		padding-top: 25px;
+	}
+
+	.postBody #playBtn{
+		width: 30px;
+		height: 36px;
+		margin: 0 auto;
+		display: block;
+	}
+
+
+	.postBody .play{
+		background-image: url("/images/play_button.png");
+		background-size: 30px 36px;
+	}
+
+	.postBody .pause{
+		background-image: url("/images/pause_button.png");
+		background-size: 30px 36px;
+	}
+
+	.postFooter{
+		height: 25px;
+		position: relative;
+		text-align: center;
+	}
+
+	.postFooter .postMenu{
+		height: 20px;
+		position: absolute;
+		bottom: 0;
+		right: 0;
+		margin-bottom: 10px;
+	}
+
+	.postFooter ul{
+		list-style-type: none;
+		text-align: center;
+	}
+	.postFooter li{
+		display: inline-block;
+		width: 40px;
+	}
+
+	.postFooter ul:after {
+		content: '';
+		display: inline-block;
+		width: 100%;
+		height: 0;
+	}
+
+	.postFooter #watchlist{
+		width: 17px;
+		height: 19px;
+		display: inline-block;
+	}
+	.postFooter .watch{
+		background-image: url("/images/bookmark.png");
+		background-size: 17px 19px;
+	}
+
+	.postFooter .watching{
+		background-image: url("/images/bookmarkClick.png");
+		background-size: 17px 19px;
+	}
+
+.bannerUser{
+		position: relative;
+    float: right;
+    text-align: right;
+}
+
+.bannerUser ul{
+	position: absolute;
+	top: 0;
+	right: 0;
+	margin: 0;
+}
+
+.bannerUser span{
+    margin-right: 75px;
+}
+
+.bannerUser form{
+}
+.bannerUser input{
+    width: 75px;
+}
+
+.bannerUser input[type="submit"]{
+    float: right;
+    width: 80px;
+    margin-top: 2px;
+}
+
+.bannerUser #register{
+    float: right;
+    margin-top: 5px;
+    margin-right: 20px;
+}
+
+nav.profile li{
+	display: inline-block;
+}
+
+
+@media (max-width: 768px){
+
+	.desktop-only{
+		display: none;
+	}
+	.profile li.desktop-only{
+		display: none;
+	}
+	.mobile-only{
+		display: block;
+	}
+
+}
+
+
+@media only screen and (min-width: 768px){
+	.col-1 {width: 8.33%;}
+	.col-2 {width: 16.66%;}
+	.col-3 {width: 25%;}
+	.col-4 {width: 33.33%;}
+	.col-5 {width: 41.66%;}
+	.col-6 {width: 50%;}
+	.col-7 {width: 58.33%;}
+	.col-8 {width: 66.66%;}
+	.col-9 {width: 75%;}
+	.col-10 {width: 83.33%;}
+	.col-11 {width: 91.66%;}
+	.col-12 {width: 100%;}
+
+.desktop-only{
+	display: inline-block;
+}
+
+.mobile-only{
+	display: none;
+}
+
+.bannerUser{
+		position: relative;
+    float: right;
+    text-align: right;
+}
+
+.bannerUser ul{
+	position: absolute;
+	top: 0;
+	right: 0;
+	margin: 0;
+}
+
+.bannerUser span{
+    margin-right: 75px;
+}
+
+.bannerUser form{
+}
+.bannerUser input{
+    width: 150px;
+}
+
+.bannerUser input[type="submit"]{
+    float: right;
+    width: 80px;
+    margin-top: 2px;
+}
+
+.bannerUser #register{
+    float: right;
+    margin-top: 5px;
+    margin-right: 20px;
+}
+
+	nav ul{
+		list-style-type: none;
+	}
+
+	nav li{
+		display: inline-block;
+		font-size: 1.5em;
+	}
+
+	nav li a{
+		text-align: center;
+		padding: 14px 16px;
+		text-decoration: none;
+		color: white;
+	}
+
+	nav li a:hover{
+		background-color: #4b90bc;
+
+	}
+
+	nav li.rightFloat{
+		float: right;
+	}
+
+	.post{
+			width: 180px;
+			height: 222px;
+			margin-top: 18px;
+			margin-left: 18px;
+			border-radius: 1px 30px;
+			display: inline-block;
+			position: relative;
+	}
+
+	.postHeader{
+		height: 46px;
+		position: relative;
+		text-align: center;
+		font-size: .9em;
+	}
+
+	.postHeader .postArtist{
+		height: 13px;
+	}
+
+	.postHeader .postTitle{
+		overflow: hidden;
+		position: absolute;
+		bottom: 1px;
+		text-align: center;
+		width: 100%;
+	}
+
+	.postBody{
+		height: 130px;
+	}
+
+	.postContent .postTags{
+			width: 170px;
+			margin-left: 5px;
+			position: absolute;
+			bottom: 30px;
+			word-wrap: break-word;
+			overflow: hidden;
+	}
+
+	.postTags span{
+		background-color: rgba(255,255,255,.05);
+		padding: 2px;
+		margin-bottom: 1px;
+		margin-left: 5px;
+		display: inline-block;
+	}
+
+	.playTime{
+		position: absolute;
+		bottom: 30px;
+		left: 55px;
+		display: none;
+	}
+
+	.postBody #playBtn{
+		width: 30px;
+		height: 36px;
+		position: absolute;
+		left: 80px;
+		top: 95px;
+		display: block;
+	}
+
+	.postBody .play{
+		background-image: url("/images/play_button.png");
+		background-size: 30px 36px;
+	}
+
+	.postBody .pause{
+		background-image: url("/images/pause_button.png");
+		background-size: 30px 36px;
+	}
+
+	.postFooter{
+		height: 46px;
+		position: relative;
+		text-align: center;
+	}
+
+	.postFooter .postMenu{
+		height: 20px;
+		position: absolute;
+		bottom: 0;
+		margin-bottom: 10px;
+	}
+
+	.postFooter ul{
+		list-style-type: none;
+		text-align: center;
+		margin-top: 4px;
+	}
+	.postFooter li{
+		display: inline-block;
+		width: 40px;
+		margin-bottom: 2px;
+	}
+
+	.postFooter ul:after {
+		content: '';
+		display: inline-block;
+		width: 100%;
+		height: 0;
+	}
+}
+.postFooter .dropdown{
+		width:22px;
+		height:22px;
+		float: right;
+		margin-top: 2px;
+		margin-right: 20px;
+}
+
+.postFooter .dropdown-content{
+		display: none;
+		position: absolute;
+		border: 2px solid white;
+		background-color: black;
+		color: black;
+		width: 180px;
+		padding: 12px 16px;
+		overflow: hidden;
+		z-index: 2;
+		bottom: 100%;
+		bottom: 5px;
+		right: 0px;
+}
+
+.postFooter .dropdown:hover .dropdown-content{
+	display: inline-block;
+}
+
+.postFooter .dropdown-content a{
+	display: block;
+	color: white;
+	text-align: center;
+	padding: 14px 16px;
+	text-decoration: none;
+}
+
+.postFooter .dropdown-content a:hover:not(.active){
+	background-color: #060606;
+}
+
+
+#Discover{
+	border: 3px solid #4b90bc;
+}
+
+#Experimental{
+	border: 3px solid #16ab5f;
+}
+
+#Independent{
+	border: 3px solid #e87f24;
+}
+
+#Solo{
+	border: 3px solid #e1b025;
+}
+
+#LFG{
+	border: 3px solid #e9543b;
+}
+
+#LFM{
+	border: 3px solid #8c50a0;
+}
+
+.form{
+	width: 500px;
+	text-align: center;
+	margin: 0 auto;
+	margin-top: 75px;
+	position: relative;
+	border: 1px solid white;
+	border-radius: 1px 30px;
+}
+
+.upload-form{
+	padding-top: 180px;
+}
+
+.form img#profileImage{
+	margin-top: -60px;
+	margin-bottom: 25px;
+}
+
+.form .preview{
+	position:absolute;
+	right: 170px;
+	top: -85px;
+}
+
+.preview .post{
+	background-color: black;
+}
+
+.form input[type="text"], .form input[type="password"], .form input[type="email"]{
+	height: 45px;
+	width: 300px;
+	font-size: 18px;
+	margin: 0 auto;
+	margin-bottom: 10px;
+	background-color: #020202;
+	color: white;
+	padding-left: 5px;
+}
+
+.form .btn-login{
+	padding: 15px 25px;
+	color: #fff;
+	background-color: #ee7600;
+	border: none;
+	margin-bottom: 25px;
+}
+
+.form-upload{
+	margin-bottom: 10px;
+	margin-left: 7px;
+}
+
+.form-upload select{
+	float: left;
+}
+
+.form-upload input, label{
+	display: block;
+}
+
+.form-upload label{
+	text-align: left;
+	font-size: 18px;
+}
+
+.form-start{
+	position: relative;
+	left: 119px;
+}
+.form-stop{
+	position: relative;
+	right: -95px;
+}
+
+.form-upload input[type="text"]{
+	height: 45px;
+	width: 230px;
+	font-size: 18px;
+	margin: 0 auto;
+	background-color: #020202;
+	color: white;
+	padding-left: 5px;
+}
+
+input#fileStart, input#fileStop{
+	width: 110px;
+	margin-right: 25px;
+}
+
+span#start, span#stop{
+	display: inline;
+}
+
+.clear{
+    clear: both;
+}
+
+.warning{
+	background-color: red;
+	width: 100%;
+	text-align: center;
+	padding: 20px;
+}
+
+.profileImage{
+		position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto;
+		margin-bottom: 5px;
+}
+
+.profileImage a{
+	z-index: 2;
+}
+
+.profileName{
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.profileSocial{
+    width: 300px;
+    height: 40px;
+    position: absolute;
+    right: 0px;
+    top: 0px;
+}
+
+.follow{
+	position: absolute;
+	right: 0px;
+	top: -20px;
+}
+
+#sound-cloud{
+	width:38px;
+	height:40px;
+	display: inline-block;
+	background-image: url("/images/soundcloud_icon.png");
+	background-image: no-repeat;
+	float: right;
+	margin-left:5px;
+}
+
+#sound-cloud:hover{
+	background-color: orange;
+}
+
+#band-camp{
+	width: 38px;
+	height:40px;
+	display: inline-block;
+	background-image: url("/images/bandcamp_icon.png");
+	background-image: no-repeat;
+	float: right;
+	margin-left:5px;
+}
+
+#twitter{
+	width: 38px;
+	height:40px;
+	display: inline-block;
+	background-image: url("/images/twitter_icon.png");
+	background-image: no-repeat;
+	float: right;
+	margin-left:5px;
+}
+
+
+.aboutField{
+		position: relative;
+    width: 500px;
+    height: 150px;
+    margin: 0 auto;
+    margin-bottom: 25px;
+		text-align: center;
+		overflow: hidden;
+}
+
+.aboutField textarea{
+	width: 500px;
+	height: 150px;
+	resize: none;
+}
+
+.flashBanner{
+		position: relative;
+    width: 480px;
+    height: 50px;
+    margin: 0 auto;
+		margin-bottom: 25px;
+		border: 1px red solid;
+		text-align: center;
+		overflow: hidden;
+}
+
+.flashBanner textarea{
+	width: 480px;
+	height: 50px;
+	resize: none;
+}
+
+.profileName{
+	margin: 0 auto;
+	margin-bottom: 25px;
+	display: block;
+}
+
+.editProfile{
+	position: relative;
+	width: 100px;
+	margin: 0 auto;
+}
+
+.edit{
+	position: absolute;
+	right: -25px;
+	top: 0;
+	z-index: 2;
+
+}
+
+.new-comment{
+	width: 500px;
+	height: 158px;
+	margin: 0 auto;
+	margin-bottom: 5px;
+	position: relative;
+}
+
+.new-reply{
+	float: right;
+}
+
+.new-reply #replyBtn{
+	float: right;
+}
+
+.new-reply textarea{
+	width: 500px;
+	height: 158px;
+	display: block;
+}
+
+.new-comment textarea{
+	width: 500px;
+	height: 155px;
+	resize: none;
+	padding: 5px;
+}
+
+#submit-btn{
+	position: absolute;
+	right: 2px;
+	bottom: 5px;
+}
+
+.comment-form{
+	width: 950px;
+	margin: 0 auto;
+	position: relative;
+}
+
+.comment-form p{
+	text-align: left;
+	margin-top: 5px;
+}
+
+.comment{
+	width: 100%;
+	float: left;
+	position: relative;
+	margin-bottom: 5px;
+	border-bottom: solid 1px white;
+}
+
+.comment p, .reply p{
+	text-align: left;
+}
+
+.comment .profileImage{
+	width: 50px;
+	height: 50px;
+	background-size: 50px 50px;
+	float: left;
+	margin: 5px;
+}
+
+.reply .profileImage{
+	width: 40px;
+	height: 40px;
+	background-size: 40px 40px;
+	float: left;
+	margin: 5px;
+}
+
+
+.commentMenu{
+	position: absolute;
+	right: 0;
+	bottom: 0;
+}
+
+.reply{
+	width: 95%;
+	float: right;
+	position: relative;
+	margin-bottom: 5px;
+	border-bottom: solid 1px grey;
+}
+

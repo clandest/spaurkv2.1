@@ -1,0 +1,66 @@
+
+{% extends "template.html" %}
+
+{% block message %}{{ messages }}{% endblock %}
+{% block nav %}{% endblock %}
+
+{% block main %}
+{% if followers == '' %}
+<p> profile user is not following any users </p>
+{% endif %}
+<div id="posts" >
+{% for follower in followers %}
+<div class="post" id="Discover" data-id="{{ follower.id }}"> <!-- START OF POST -->
+	<div class="postHeader">
+		<div class="postTitle">
+			<div class="postArtist"><h2>{{ follower.username }}</h2></div>
+		</div>
+	</div>
+	<a href="/p/{{follower.username}}">
+	<div class="postBody" id="albumImage-{{ follower.id }}" style="background-image: url(/uploads/{{ follower.profileImage }}); background-size: 180px 146px">
+	</div>
+	</a>
+	<div class="postFooter">
+		{% if user == userProfile %} 
+		<span><a href="/follows/{{ follower.follow_id }}" id="follows" class="removeFollow">[ Unfollow ]</a></span>
+		{% else %}
+		<span><a href="/follows/{{ follower.follow_id }}" id="follows" class="addFollow">[ Follow ]</a></span>
+		{% endif %}
+
+	</div>
+</div> <!-- END OF POST -->
+
+{% endfor %}
+</div>
+
+<script>
+	var follows = document.querySelectorAll("#follows");
+	var followsArray = [].slice.call(follows);
+
+	if('{{ user }}' != ''){
+		followsArray.forEach(function(follow, i){
+			follow.addEventListener("click", function(event){
+				if(event.target.className == "addFollow"){
+					event.target.className = "removeFollow";
+					event.target.innerText = "[ Unfollow]";
+				}else{
+					event.target.className = "addFollow";
+					event.target.innerText = "[ Follow ]";
+				}
+
+			});
+		});
+	}
+
+</script>
+
+{% block scripts %}
+
+{% include "static/js/profile.js" %}
+
+{% endblock %}
+
+{% endblock %}
+
+
+
