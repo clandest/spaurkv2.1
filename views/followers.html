@@ -19,12 +19,7 @@
 	</div>
 	</a>
 	<div class="postFooter">
-		{% if user == userProfile %} 
-		<span><a href="/follows/{{ follower.follow_id }}" id="follows" class="removeFollow">[ Unfollow ]</a></span>
-		{% else %}
 		<span><a href="/follows/{{ follower.follow_id }}" id="follows" class="addFollow">[ Follow ]</a></span>
-		{% endif %}
-
 	</div>
 </div> <!-- END OF POST -->
 

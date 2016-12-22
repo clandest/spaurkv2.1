@@ -11,42 +11,45 @@
 {% endif %}
 {% for post in posts %}
 <div class="post" id="{{ post.category }}" data-id="{{ post.id }}"> <!-- START OF POST -->
-	<audio src="/uploads/{{ post.audioFile }}" id="audio{{ post.id }}" data-isPlaying="0" data-start="{{ post.start }}" data-stop="{{ post.stop }}"></audio>
-	<div class="postHeader">
-		<div class="postTitle">
-			<div class="postArtist">{{ post.artist }}</div>
-			<div class="postSong">{{ post.title | truncate(40) }}</div>
-		</div>
-	</div>
-	<div class="postBody" id="albumImage-{{ post.id }}" {% if post.imageFile %}style="background-image: url(/uploads/{{ post.imageFile }}); background-size: 180px 146px" {% endif %}>
-		<div class="postContent">
-			<span id="playBtn" class="play" data-id="{{ post.id }}"></span>
-			<div class="postTags" id="postTags-{{ post.id }}">
-				{% if post.tags != '' %}
-				<span>{{ post.tags }}</span>
-				{% endif %}
-			</div>
-			<div id="playTime-{{ post.id }}" class="playTime"><span><div id="start-{{ post.id }}" class="start">0:00</div> / <div id="stop-{{ post.id }}" class="stop">0:00</div></span></div>
-		</div> 
-	</div>
-	<div class="postFooter">
-		<div class="dropdown">	
-			<img src="/images/menu.png">
-			<div class="dropdown-content">
-				<a href="#{{ post.category }}" id="{{ post.category }}">Category: {{ post.category }}</a>
-				<a href="#{{ post.genre }}">Genre: {{ post.genre }}</a>
-				<img src="/uploads/{{ post.profileImage }}" width="25px" height="25px">
-				<a href="/p/{{ post.username }}">{{ post.username }}</a>
-			</div>
-		</div>
-		<div class="postMenu">
-			<a href="/watchlist/{{ post.id }}"><img id="watching" class="watch"></a><img src="/images/spaurk_icon.png"> 
-		</div>
-	</div>
-</div> <!-- END OF POST -->
+		<audio src="/uploads/{{ post.audioFile }}" id="audio{{ post.id }}" data-isPlaying="0" data-start="{{ post.start }}" data-stop="{{ post.stop }}"></audio>
 
+			<div class="postHeader">
+				<div class="postArtist" id="postArtist">{{ post.artist }} is the title</div>
+				<div class="postTitle" id="postSong">{{ post.title }}</div>
+			</div>
+			<div class="postBackground" id="albumImage-{{ post.id }}" {% if post.imageFile %}style="background-image: url(/uploads/{{ post.imageFile }});" {% endif %}>
+			<div class="postBody">
+				<div class="postContent">
+			<div id="playTime-{{ post.id }}" class="playTime"><span><div id="start-{{ post.id }}" class="start">0:00</div> / <div id="stop-{{ post.id }}" class="stop">0:00</div></span></div>
+					<span id="playBtn" class="play" data-id="{{ post.id }}"></span>
+					<div class="postTags" id="postTags-{{ post.id }}">
+						{% if post.tags != '' %}
+						<span>{{ post.tags }}</span>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+			</div>
+			<div class="postFooter">
+				<div class="postMenu">
+					<ul>
+						<li><a href="/watchlist/{{ post.id }}"><span id="watching" class="watch"></span></a></li>
+						<div class="dropdown">
+							<li><a href="#"><img src="/images/menu.png"></a></li>
+							<div class="dropdown-content">
+								<a href="#{{ post.category }}" id="{{ post.category }}">Category: {{ post.category }}</a>
+								<a href="#{{ post.genre }}">Genre: {{ post.genre }}</a>
+								<img src="/uploads/{{ post.profileImage }}" width="25px" height="25px">
+								<a href="/p/{{ post.username }}">{{ post.username }}</a>
+							</div>
+						</div>
+					</ul>
+				</div>
+			</div>
+		</div> <!-- END OF POST -->
 {% endfor %}
 </div>
+
 
 <script>
 	var posts = document.querySelectorAll("#playBtn");
@@ -55,9 +58,8 @@
 	var watching = document.querySelectorAll("#watching");
 	var watchingArray = [].slice.call(watching);
 
-	if('{{ user }}' != ''){
 		watchingArray.forEach(function(watch, i){
-			watch.addEventListener("click", function(event){
+			watch.addEventListener("click", function(e){
 				if(event.target.className == "watch"){
 					event.target.className = "watching";
 				}else{
@@ -67,7 +69,6 @@
 			});
 
 		});
-	}
 
 	postsArray.forEach(function(post, i){
 		var audio = document.getElementById("audio" + post.getAttribute("data-id"));
@@ -166,7 +167,7 @@ function setStopTime(post, audio){
 function showAlbum(postTags, postImage, playTime, albumImage){
 	postTags.style.visibility = "hidden";
 	if(albumImage)
-		postImage.style.backgroundImage = albumImage;
+		postImage.style.backgroundSize = "180px 146px";
 	playTime.style.display = "block";
 }
 
@@ -178,7 +179,7 @@ function showAlbumMouseOver(audio, postTags, postImage, playTime, albumImage){
 
 function showTags(postTags, postImage, playTime){
 	postTags.style.visibility = "visible";
-	postImage.style.backgroundImage = "none";
+	postImage.style.backgroundSize = "0 0";
 	playTime.style.display = "none";
 }
 
@@ -228,7 +229,9 @@ function convertStringToSeconds(str){
 }
 
 
-</script>	{% block scripts %}
+</script>	
+
+	{% block scripts %}
 
 		{% include "static/js/profile.js" %}
 

@@ -1,0 +1,40 @@
+
+{% extends "template.html" %}
+
+{% block message %}{{ messages }}{% endblock %}
+
+{% block profile %}{% endblock %}
+
+{% block profileNav %}{% endblock %}
+{% block nav %}{% endblock %}
+
+{% block main %}
+<div class="form">
+
+	<img id="profileImage" src="images/defaultProfile.png" height="100px" width="100px">
+	<form name="loginForm" id="loginForm" action="" method="POST">
+		<div class="form-input">
+			<input type="text" name="username" id="username" placeholder="Enter Username" required>
+		</div>
+		<div class="form-input">
+			<input type="password" name="password" id="password" placeholder="Enter Password" required>
+		</div>
+		<input class="btn-login" type="submit" name="login" value="Login">
+		<p>Forgot Password</p>
+		<p>(only if email is provided)</p>
+	</form>
+</div>
+
+<script>
+	var userName = document.getElementById("username");
+
+	userName.addEventListener('change', function(e){
+		var username = document.getElementById("username");
+		var userNameValue = username.value;
+
+		userNameValue = userNameValue.trim();
+		username.value = userNameValue;
+	});
+</script>
+
+{% endblock %}

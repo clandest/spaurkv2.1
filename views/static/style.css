@@ -57,6 +57,7 @@ main{
     width: 100%;
     height: 150px;
     display: inline-block;
+		vertical-align: bottom;
 		border-radius: 1px 30px;
 		position: relative;
 		margin-bottom: 5px;
@@ -67,18 +68,38 @@ main{
 		text-align: center;
 	}
 
+
+
 	.postBody{
 		height: 100px;
 		padding-top: 25px;
+		position: relative;
+	}
+
+
+	.playTime span{
+		background-color: rgba(0,0,0,.95);
+		padding: 2px;
+		margin-bottom: 1px;
+		margin-left: 5px;
+		display: inline-block;
+	}
+
+
+	.playTime{
+		position: absolute;
+		bottom: 10px;
+		right: 35px;
+		display: none;
 	}
 
 	.postBody #playBtn{
 		width: 30px;
 		height: 36px;
-		margin: 0 auto;
+		position: absolute;
+		right: 60px;
 		display: block;
 	}
-
 
 	.postBody .play{
 		background-image: url("/images/play_button.png");
@@ -104,6 +125,11 @@ main{
 		margin-bottom: 10px;
 	}
 
+	postMenu li:hover{
+		background-color: red;	
+	}
+
+
 	.postFooter ul{
 		list-style-type: none;
 		text-align: center;
@@ -120,7 +146,7 @@ main{
 		height: 0;
 	}
 
-	.postFooter #watchlist{
+	.postFooter #watching{
 		width: 17px;
 		height: 19px;
 		display: inline-block;
@@ -185,6 +211,37 @@ nav.profile li{
 	}
 	.mobile-only{
 		display: block;
+	}
+
+	.postArtist{
+		border-top-right-radius: 30px;
+		background-color: rgba(0,0,0,.90);
+		width: 96%;
+		display: inline-block;
+		margin: 0 auto;
+	}
+	.postTitle{
+		border-top-right-radius: 5px;
+		background-color: rgba(0,0,0,.90);
+		width: 100%;
+	}
+
+	.postContent .postTags{
+			margin-left: 5px;
+			position: absolute;
+			bottom: -20px;
+			left: 5px;
+			word-wrap: break-word;
+			overflow: hidden;
+	}
+
+	.postTags span{
+		background-color: rgba(0,0,0,.95);
+		border-bottom-left-radius: 5px;
+		padding: 2px;
+		margin-bottom: 1px;
+		margin-left: 5px;
+		display: inline-block;
 	}
 
 }
@@ -289,43 +346,37 @@ nav.profile li{
 		font-size: .9em;
 	}
 
-	.postHeader .postArtist{
-		height: 13px;
-	}
-
 	.postHeader .postTitle{
 		overflow: hidden;
 		position: absolute;
-		bottom: 1px;
+		bottom: -2px;
 		text-align: center;
 		width: 100%;
 	}
 
 	.postBody{
-		height: 130px;
+		height: 146px;
+		position: relative;
 	}
 
 	.postContent .postTags{
-			width: 170px;
-			margin-left: 5px;
-			position: absolute;
-			bottom: 30px;
 			word-wrap: break-word;
 			overflow: hidden;
+			position: absolute;
+			bottom: 0;
 	}
 
 	.postTags span{
 		background-color: rgba(255,255,255,.05);
 		padding: 2px;
-		margin-bottom: 1px;
-		margin-left: 5px;
 		display: inline-block;
+		text-align: center;
 	}
 
 	.playTime{
 		position: absolute;
-		bottom: 30px;
-		left: 55px;
+		bottom: 0px;
+		left: 45px;
 		display: none;
 	}
 
@@ -334,7 +385,6 @@ nav.profile li{
 		height: 36px;
 		position: absolute;
 		left: 80px;
-		top: 95px;
 		display: block;
 	}
 
@@ -349,27 +399,25 @@ nav.profile li{
 	}
 
 	.postFooter{
-		height: 46px;
 		position: relative;
 		text-align: center;
 	}
 
 	.postFooter .postMenu{
-		height: 20px;
 		position: absolute;
-		bottom: 0;
-		margin-bottom: 10px;
+		bottom: -8px;
+	}
+
+	postMenu li:hover{
+		background-color: red;	
 	}
 
 	.postFooter ul{
 		list-style-type: none;
 		text-align: center;
-		margin-top: 4px;
 	}
 	.postFooter li{
 		display: inline-block;
-		width: 40px;
-		margin-bottom: 2px;
 	}
 
 	.postFooter ul:after {
@@ -417,6 +465,12 @@ nav.profile li{
 .postFooter .dropdown-content a:hover:not(.active){
 	background-color: #060606;
 }
+
+.dropdown-content img{
+	float: left;
+	margin-top: 10px;
+}
+
 
 
 #Discover{
@@ -516,6 +570,10 @@ nav.profile li{
 .form-stop{
 	position: relative;
 	right: -95px;
+}
+
+.start, .stop{
+	display: inline;
 }
 
 .form-upload input[type="text"]{
@@ -754,5 +812,61 @@ span#start, span#stop{
 	position: relative;
 	margin-bottom: 5px;
 	border-bottom: solid 1px grey;
+}
+
+.message{
+    background-color: green;
+    text-align: center;
+    margin: 0 auto;
+		margin-top: 5px;
+}
+
+header a{
+    padding: 0;
+    margin: 0;
+}
+
+header .profile{
+	width: 50px;
+	height: 50px;
+}
+
+header .profile a{
+	display: block;
+}
+
+header .dropdown{
+		position: relative;
+		display: inline-block;
+}
+
+header .dropdown-content{
+		display: none;
+		position: absolute;
+		border: 2px solid white;
+		background-color: #020202;
+		color: black;
+		width: 200px;
+		box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+		padding: 12px 16px;
+		overflow: hidden;
+		z-index: 3;
+		right: 0;
+}
+
+header .dropdown:hover .dropdown-content{
+	display: block;
+}
+
+header .dropdown-content a{
+	display: block;
+	color: white;
+	text-align: center;
+	padding: 14px 16px;
+	text-decoration: none;
+}
+
+header .dropdown-content a:hover:not(.active){
+	background-color: #0a0a0a;
 }
 

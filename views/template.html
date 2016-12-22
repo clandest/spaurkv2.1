@@ -5,6 +5,7 @@
 		<link href="/style.css" rel="stylesheet">	
 		<link href="/nouislider.min.css" rel="stylesheet">	
 		<link href="https://fonts.googleapis.com/css?family=Cabin" rel="stylesheet">
+    <title>{{ title }}</title>
 	</head>
 	<body>
     <div class="message"> 
@@ -12,8 +13,30 @@
     </div>
 		<div class="row">
 			<header class="col-12">
-				<img src="/images/spaurk_logo.png">
+        <a href="/"><img src="/images/spaurk_logo.png"></a>
 				<div class="bannerUser desktop-only">
+        {% if isLogged %} 
+          <ul>
+          <li>
+						<div class="dropdown">
+							<div class="profile">
+                <a href="/p/{{ user }}"><img src="/uploads/{{ accountImage }}" height="50px" width="50px"></a>
+							<div class="dropdown-content">
+									<a href="?Alternative">Alternative</a>
+									<a href="">Electronic</a>
+									<a href="">R&B</a>
+									<a href="">Pop</a>
+									<a href="">Rock</a>
+							</div>
+
+							</div>
+						</div>
+          </li>
+          <li>
+            <a href="/logout">logout</a>
+          </li>
+          </ul>
+          {% else %}
 					<span>Username:</span>
 					<span>Password:</span>
 					<form action="/login" method="post">
@@ -23,10 +46,34 @@
 						<input type="submit" name="login" value="login" >
 						<a href="/register" id="register">register</a>
 					</form>
+        {% endif %}
 				</div>
 				<div class="bannerUser mobile-only">
-					<a href="#">Login</a>
-					<a href="#">Register</a>
+         {% if isLogged %} 
+          <ul>
+          <li>
+						<div class="dropdown">
+							<div class="profile">
+                <a href="/p/{{ user }}"><img src="/uploads/{{ accountImage }}" height="50px" width="50px"></a>
+							<div class="dropdown-content">
+									<a href="?Alternative">Alternative</a>
+									<a href="">Electronic</a>
+									<a href="">R&B</a>
+									<a href="">Pop</a>
+									<a href="">Rock</a>
+							</div>
+
+							</div>
+						</div>
+          </li>
+          <li>
+            <a href="/logout">logout</a>
+          </li>
+          </ul>
+          {% else %}
+					<a href="/login">Login</a>
+					<a href="/register">Register</a>
+          {% endif %}
 				</div>
 			</header>
 		</div>
@@ -60,11 +107,11 @@
 		<div class="row">
 			<nav class="col-12 profile">
 				<ul>
-					<li><a href="/main">Main</a></li>
-					<li><a href="/watchlist">Watchlist</a></li>
-					<li><a href="/comments">Comments</a></li>
-					<li><a href="/following">Following</a></li>
-					<li><a href="/followers">Followers</a></li>
+          <li><a href="/p/{{ userProfile }}">Main</a></li>
+          <li><a href="/p/{{ userProfile}}/watchlist">Watchlist</a></li>
+          <li><a href="/p/{{ userProfile}}/comments">Comments</a></li>
+          <li><a href="/p/{{ userProfile }}/following">Following</a></li>
+          <li><a href="/p/{{ userProfile }}/followers">Followers</a></li>
 					<li class="rightFloat desktop-only"><a href="/upload">New Post</a></li>
 				</ul>
 			</nav>
@@ -117,4 +164,23 @@
 			</main>
 		</div>
 	</body>
+
+<script>
+
+	var follow = document.querySelector("#follow");
+
+  if('{{ user }}' != ''){
+    follow.addEventListener("click", function(event){
+      if(event.target.className == "addFollow"){
+        event.target.className = "removeFollow";
+        event.target.innerText = "[ Unfollow]";
+      }else{
+        event.target.className = "addFollow";
+        event.target.innerText = "[ Follow ]";
+      }
+
+    });
+  }
+
+</script>
 </html>
