@@ -53,6 +53,11 @@ main{
 
 	}
 
+	nav.profile li{
+		font-size: 1.0em;
+		float: left;
+	}
+
 .post{
     width: 100%;
     height: 150px;
@@ -162,16 +167,12 @@ main{
 	}
 
 .bannerUser{
-		position: relative;
-    float: right;
-    text-align: right;
+		position: absolute;
+		top: 0;
+		right: 0;
 }
 
 .bannerUser ul{
-	position: absolute;
-	top: 0;
-	right: 0;
-	margin: 0;
 }
 
 .bannerUser span{
@@ -198,6 +199,78 @@ main{
 
 nav.profile li{
 	display: inline-block;
+	text-size: 1.0em;
+}
+
+	.profileSocial ul{
+		list-style-type: none;
+		position: absolute;
+		right: 0;
+	}
+
+	.follow{
+		position: absolute;
+		right: 0px;
+		top: -20px;
+	}
+
+	#sound-cloud{
+		width:38px;
+		height:40px;
+		background-image: url("/images/soundcloud_icon.png");
+		background-image: no-repeat;
+	}
+
+	#sound-cloud:hover{
+		background-color: orange;
+	}
+
+	#band-camp{
+		width: 38px;
+		height:40px;
+		background-image: url("/images/bandcamp_icon.png");
+		background-image: no-repeat;
+	}
+
+	#twitter{
+		width: 38px;
+		height:40px;
+		background-image: url("/images/twitter_icon.png");
+		background-image: no-repeat;
+	}
+
+.aboutField{
+		position: relative;
+    width: 100%;
+    height: 150px;
+		text-align: center;
+		overflow: hidden;
+}
+
+.aboutField textarea{
+	width: 100%;
+	height: 150px;
+	resize: none;
+}
+
+.flashBanner{
+		position: relative;
+    width: 100%;
+    height: 50px;
+		margin-bottom: 25px;
+		border: 1px red solid;
+		text-align: center;
+		overflow: hidden;
+}
+
+.flashBanner textarea{
+	width: 100%;
+	height: 50px;
+	resize: none;
+}
+
+#postReply{
+		float: right;
 }
 
 
@@ -243,6 +316,65 @@ nav.profile li{
 		margin-left: 5px;
 		display: inline-block;
 	}
+
+	.new-comment{
+		width: 100%;
+		height: 158px;
+		margin: 0 auto;
+		margin-bottom: 5px;
+		position: relative;
+	}
+
+	.new-reply{
+		float: right;
+	}
+
+	.new-reply #replyBtn{
+		float: right;
+	}
+
+	.new-reply textarea{
+		width: 100%;
+		height: 158px;
+		display: block;
+	}
+
+	.new-comment textarea{
+		width: 100%;
+		height: 155px;
+		resize: none;
+		padding: 5px;
+	}
+
+	#submit-btn{
+		position: absolute;
+		right: 2px;
+		bottom: 5px;
+	}
+
+	.comment-form{
+		width: 100%;
+		margin: 0 auto;
+		position: relative;
+	}
+
+	.comment-form p{
+		text-align: left;
+		margin-top: 5px;
+	}
+
+	.comment{
+		width: 100%;
+		float: left;
+		position: relative;
+		margin-bottom: 5px;
+		border-bottom: solid 1px white;
+	}
+
+	.comment p, .reply p{
+		text-align: left;
+	}
+
 
 }
 
@@ -328,6 +460,11 @@ nav.profile li{
 	nav li.rightFloat{
 		float: right;
 	}
+
+	nav.profile li{
+		font-size: 1.5em;
+	}
+
 
 	.post{
 			width: 180px;
@@ -425,6 +562,80 @@ nav.profile li{
 		display: inline-block;
 		width: 100%;
 		height: 0;
+	}
+
+	.aboutField{
+			position: relative;
+			width: 500px;
+			height: 150px;
+			margin: 0 auto;
+			margin-bottom: 25px;
+			text-align: center;
+			overflow: hidden;
+	}
+
+	.aboutField textarea{
+		width: 500px;
+		height: 150px;
+		resize: none;
+	}
+
+	.flashBanner{
+			position: relative;
+			width: 480px;
+			height: 50px;
+			margin: 0 auto;
+			margin-bottom: 25px;
+			border: 1px red solid;
+			text-align: center;
+			overflow: hidden;
+	}
+
+	.flashBanner textarea{
+		width: 480px;
+		height: 50px;
+		resize: none;
+	}
+
+	.profileSocial ul{
+		list-style-type: none;
+	}
+
+	.follow{
+		position: absolute;
+		right: 0px;
+		top: -20px;
+	}
+
+	#sound-cloud{
+		width:38px;
+		height:40px;
+		background-image: url("/images/soundcloud_icon.png");
+		background-image: no-repeat;
+		float: right;
+		margin-left:5px;
+	}
+
+	#sound-cloud:hover{
+		background-color: orange;
+	}
+
+	#band-camp{
+		width: 38px;
+		height:40px;
+		background-image: url("/images/bandcamp_icon.png");
+		background-image: no-repeat;
+		float: right;
+		margin-left:5px;
+	}
+
+	#twitter{
+		width: 38px;
+		height:40px;
+		background-image: url("/images/twitter_icon.png");
+		background-image: no-repeat;
+		float: right;
+		margin-left:5px;
 	}
 }
 .postFooter .dropdown{
@@ -631,79 +842,8 @@ span#start, span#stop{
     top: 0px;
 }
 
-.follow{
-	position: absolute;
-	right: 0px;
-	top: -20px;
-}
-
-#sound-cloud{
-	width:38px;
-	height:40px;
-	display: inline-block;
-	background-image: url("/images/soundcloud_icon.png");
-	background-image: no-repeat;
-	float: right;
-	margin-left:5px;
-}
-
-#sound-cloud:hover{
-	background-color: orange;
-}
-
-#band-camp{
-	width: 38px;
-	height:40px;
-	display: inline-block;
-	background-image: url("/images/bandcamp_icon.png");
-	background-image: no-repeat;
-	float: right;
-	margin-left:5px;
-}
-
-#twitter{
-	width: 38px;
-	height:40px;
-	display: inline-block;
-	background-image: url("/images/twitter_icon.png");
-	background-image: no-repeat;
-	float: right;
-	margin-left:5px;
-}
 
 
-.aboutField{
-		position: relative;
-    width: 500px;
-    height: 150px;
-    margin: 0 auto;
-    margin-bottom: 25px;
-		text-align: center;
-		overflow: hidden;
-}
-
-.aboutField textarea{
-	width: 500px;
-	height: 150px;
-	resize: none;
-}
-
-.flashBanner{
-		position: relative;
-    width: 480px;
-    height: 50px;
-    margin: 0 auto;
-		margin-bottom: 25px;
-		border: 1px red solid;
-		text-align: center;
-		overflow: hidden;
-}
-
-.flashBanner textarea{
-	width: 480px;
-	height: 50px;
-	resize: none;
-}
 
 .profileName{
 	margin: 0 auto;
