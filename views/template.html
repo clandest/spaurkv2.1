@@ -88,7 +88,9 @@
 			<div class="profileImage">
 				<img id="profileImage" src="/uploads/{{ profileImage }}" height="100px" width="100px">
 			</div>
+      {% if user == userProfile %}
 			<div class="edit"><img id="edit" data-isEdit="0" src="/images/edit_icon.png" width="20px" height="20px"></div>
+      {% endif %}
 		</div>
 		<span class="profileName">{{ userProfile }}</span>
 		<div class="profileSocial">
