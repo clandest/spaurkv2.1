@@ -88,7 +88,8 @@
 
 	<div class="form-upload" style="float:left">
 		<label for="genre">Genre:</label>
-		<input type="text" name="genre" id="genre" require>
+		<input type="text" name="genre" id="genre" autocomplete = "off" require>
+		<div id="livesearch" style="display: inline-block;"></div>
 	</div>
 
 
@@ -97,19 +98,16 @@
 		<input type="text" name="tags" id="tags" maxlength="60">
 		<label for="categoryList">Category</label>
 		<select name="categoryList" id="category">
-			<option value="Discover">Discover</option>
-			<option value="Experimental">Experimental</option>
-			<option value="Independent">Independent</option>
-			<option value="Solo">Solo</option>
-			<option value="LFG">Looking for Group</option>
-			<option value="LFM">Looking for Members</option>
+			{% for category in categories %}
+			<option value="{{ category.name | capitalize }}">{{ category.name | capitalize }}</option>
+			{% endfor %}
 		</select>
 
 	</div>
 
 	<div class="clear"></div>
 
-	<div class="form-upload">
+	<div class="form-upload" style="margin-top: 25px;">
 		<a href="#" id="imageSelect">select an image file</a><br>
 		<div id="imageList"><p>No image selected!</p></div>
 	</div>
@@ -150,7 +148,33 @@
 
 window.URL = window.URL || window.webkitURL;
 
+var genre = document.getElementById("genre");
 var select = document.getElementById("category");
+
+var genre = document.getElementById("genre");
+genre.addEventListener("keyup", function(event){
+	var inputTrimmed = event.target.value.trim();
+	genre.value = inputTrimmed;
+	showGenres(inputTrimmed);
+});
+
+function showGenres(str){
+	if(str.length == 0){
+		document.getElementById("livesearch").innerHTML="";
+		document.getElementById("livesearch").style.boarder="0px";
+		return;
+	}
+
+	var req = new XMLHttpRequest();
+	req.onreadystatechange = function(){
+		if(this.readyState == 4 && this.status == 200){
+			document.getElementById("livesearch").innerHTML = this.responseText;
+			document.getElementById("livesearch").style.border = "1px solid #A5ACB2";
+		}
+	}
+	req.open("GET", "upload?q="+str, true);
+	req.send();
+}
 
 select.addEventListener("change", function(event){
 	var value = select.options[select.selectedIndex].value;
@@ -365,32 +389,41 @@ function handleImage(file){
 function showMetaData(data){
 	musicmetadata(data, function(err, result){
 		if(err)
-			throw err;
+			console.log("no meta data available");
+		else{
+				if(result.picture.length > 0){
+					var picture = result.picture[0];
+					var url = URL.createObjectURL(new Blob([picture.data], {'type':'image/' + picture.format}));
+					var image = document.getElementById('albumImage');
+					var imageList = document.getElementById('imageList');
 
-		if(result.picture.length > 0){
-			var picture = result.picture[0];
-			var url = URL.createObjectURL(new Blob([picture.data], {'type':'image/' + picture.format}));
-			var image = document.getElementById('albumImage');
-			var imageList = document.getElementById('imageList');
+					imageList.innerHTML = "<p>" + result.title + "." + picture.format + "</p>";
 
-			imageList.innerHTML = "<p>" + result.title + "." + picture.format + "</p>";
+					image.style.backgroundImage = "url(" + url + ")";
+					image.style.backgroundRepeat = "no-repeat";
+					image.style.backgroundSize = "180px 146px";
 
-			image.style.backgroundImage = "url(" + url + ")";
-			image.style.backgroundRepeat = "no-repeat";
-			image.style.backgroundSize = "180px 146px";
+					fileImage = undefined;
+					bgImage = url;
 
-			fileImage = undefined;
-			bgImage = url;
+				}else{
+					var imageList = document.getElementById("imageList");
+					imageList.innerHTML = "<p>Album imag not embeded in audio file, please select an (album)Image</p>"	
+				}
 
-		}else{
-			imageList.innerHTML = "<p>Pulling the album image isn't supported, please select an (album)Image</p>"	
+				var genre =  result.genre;
+				var genre = genre[0].replace(/[^A-Z0-9]+/gi, "");
+
+				console.log(genre)
+				showGenres(genre)
+				
+
+				document.getElementById('title').value = result.title;
+				document.getElementById('artist').value = result.artist;
+				document.getElementById('genre').value = genre;
+				document.getElementById('postSong').innerText = result.title;
+				document.getElementById('postArtist').innerText = result.artist;
 		}
-
-		document.getElementById('title').value = result.title;
-		document.getElementById('artist').value = result.artist;
-		document.getElementById('genre').value = result.genre;
-		document.getElementById('postSong').innerText = result.title;
-		document.getElementById('postArtist').innerText = result.artist;
 	});
 }
 

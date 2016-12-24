@@ -5,24 +5,24 @@
 {% block nav %}{% endblock %}
 
 {% block main %}
-{% if followers == '' %}
-<p> profile user is not following any users </p>
-{% endif %}
 <div id="posts" >
+{% if followers == '' %}
+<p> Profile user is not following anyone </p>
+{% endif %}
 {% for follower in followers %}
 <div class="post" id="Discover" data-id="{{ follower.id }}"> <!-- START OF POST -->
 	<div class="postHeader">
 		<div class="postArtist" id="postArtist"><h2>{{ follower.username }}</h2></div>
 	</div>
 	<a href="/p/{{follower.username}}">
-	<div class="postBody" id="albumImage-{{ follower.id }}" style="background-image: url(/uploads/{{ follower.profileImage }}); background-size: 180px 146px">
+	<div class="postBody" id="albumImage-{{ follower.id }}" style="background-image: url(/uploads/{{ follower.profileImage }}); background-size: 180px 146px; background-repeat: no-repeat; background-position: center;">
 	</div>
 	</a>
 	<div class="postFooter">
 		{% if user == userProfile %} 
-		<span><a href="/follows/{{ follower.follow_id }}" id="follows" class="removeFollow">[ Unfollow ]</a></span>
+		<span><a href="/follows/{{ follower.user_id }}" id="follows" class="removeFollow">[ Unfollow ]</a></span>
 		{% else %}
-		<span><a href="/follows/{{ follower.follow_id }}" id="follows" class="addFollow">[ Follow ]</a></span>
+		<span><a href="/follows/{{ follower.user_id }}" id="follows" class="addFollow">[ Follow ]</a></span>
 		{% endif %}
 
 	</div>

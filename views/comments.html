@@ -3,9 +3,12 @@
 {% block nav %}{% endblock %}
 {% block main %}
 {% if comments == '' %}
+<div id="posts">
 <p> profile user doest not have any comments. Login to leave them a comment </p>
+</div>
 {% endif %}
 
+{% if user %}
 <form name="commentForm" id="commentForm" action="" enctype="multipart/form-data" method="POST">
 	<div class="new-comment">
 			<textarea name="newComment" id="new-comment" form="commentForm"></textarea>
@@ -14,12 +17,13 @@
 		</div>
 	</div>
 </form>
+{% endif %}
 
 
 <div class="comments" id="comments">
 <ul id="commentsList" data-replying="0">
 {% for comment in comments %}
-{% if comment.replies_id == NULL  %}
+{% if comment.repliesd == NULL  %}
 	<li>
 		<div class="comment" data-id="{{ comment.id }}">
 			<div class="profileImage"><a href="/p/{{ comment.username }}"><img src="/uploads/{{ comment.profileImage }}" width=50 height=50 title="{{ comment.username }}  {{ comment.created_at }}"></a></div>
@@ -30,7 +34,7 @@
 		</div>
 		<ul class="replies">
 		{% for reply in comments %}
-		{% if comment.id == reply.replies_id %}
+		{% if comment.id == reply.replies %}
 			<li>
 				<div class="reply" data-id="{{ reply.id }}">
 					<div class="profileImage"><a href="/p/{{ reply.username }}"><img src="/uploads/{{ reply.profileImage }}" width=40 height=40 title="{{ reply.username }}  {{ reply.created_at }}"></a></div>
@@ -50,6 +54,13 @@
 </ul>
 </div>
 <div class="clear"></div>
+
+{% block scripts %}
+
+{% include "static/js/profile.js" %}
+
+{% endblock %}
+
 <script>
 	var comments = document.getElementById('commentsList');
 	var commentForm = document.getElementById('commentForm');
@@ -123,7 +134,6 @@
 		newProfileImage.className = "profileImage";
 		newProfileImage.innerHTML = '<img src="/uploads/{{ accountImage }}" width="50" height="50" title="{{ user }}">';
 		newMenu.className = "commentMenu";
-		newMenu.innerHTML = '<a href="" id="collapse-btn">[ - ]</a><a href="" id="reply-btn" data-reply="0">[Reply]</a><a href="">[Report]</a>';
 
 
 		newContext.innerText = message; 
@@ -250,8 +260,3 @@
 </script>
 {% endblock %}
 
-{% block scripts %}
-
-{% include "static/js/profile.js" %}
-
-{% endblock %}

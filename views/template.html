@@ -88,7 +88,7 @@
 			<div class="profileImage">
 				<img id="profileImage" src="/uploads/{{ profileImage }}" height="100px" width="100px">
 			</div>
-			<div class="edit"><img src="/images/edit_icon.png" width="20px" height="20px"></div>
+			<div class="edit"><img id="edit" data-isEdit="0" src="/images/edit_icon.png" width="20px" height="20px"></div>
 		</div>
 		<span class="profileName">{{ userProfile }}</span>
 		<div class="profileSocial">
@@ -122,10 +122,17 @@
 		{% block nav %}
 		<div class="row">
 			<nav class="col-12">
-				<ul>
+				<ul id="nav">
 					<li><a href="#">Front Page</a></li>
-					<li><a href="#">All</a></li>
-					<li><a href="#">Genre: ----</a></li>
+          <div class="dropdown">
+            <li><a href="#">Genre: {{ selectedGenre }} </a></li>
+            <div class="dropdown-content">
+              <a href="/">All</a>
+              {% for genre in genreList %}
+              <a href="/g/{{ genre.genreShowName }}" id="{{ genre.name }}">{{ genre.genreShowName }}</a>
+              {% endfor %}
+            </div>
+          </div>
 					<li class="rightFloat desktop-only"><a href="/upload">New Post</a></li>
 					<li class="rightFloat"><a href="#">Subscribe to Genre</a></li>
 				</ul>

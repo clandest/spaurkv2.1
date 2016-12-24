@@ -8,10 +8,12 @@
 <div id="posts" >
 {% if posts == '' %}
 <p> profile user hasn't made any uploads </p>
+</div>
 {% endif %}
 {% for post in posts %}
-<div class="post" id="{{ post.category }}" data-id="{{ post.id }}"> <!-- START OF POST -->
-		<audio src="/uploads/{{ post.audioFile }}" id="audio{{ post.id }}" data-isPlaying="0" data-start="{{ post.start }}" data-stop="{{ post.stop }}"></audio>
+
+<div class="post" id="{{ post.categoryShowName }}" data-id="{{ post.id }}"> <!-- START OF POST -->
+		<audio preload="auto" src="/uploads/{{ post.audioFile }}" id="audio{{ post.id }}" data-isPlaying="0" data-start="{{ post.start }}" data-stop="{{ post.stop }}"></audio>
 
 			<div class="postHeader">
 				<div class="postArtist" id="postArtist">{{ post.artist }} is the title</div>
@@ -36,13 +38,13 @@
 						<li><a href="/watchlist/{{ post.id }}"><span id="watching" class="watch"></span></a></li>
 						<div class="dropdown">
 							<li><a href="#"><img src="/images/menu.png"></a></li>
-							<div class="dropdown-content">
-								<a href="#{{ post.category }}" id="{{ post.category }}">Category: {{ post.category }}</a>
-								<a href="#{{ post.genre }}">Genre: {{ post.genre }}</a>
+							<li class="dropdown-content">
+								<a href="/c/{{ post.categoryShowName }}" id="{{ post.categoryShowName }}">Category: {{ post.categoryShowName }}</a>
+								<a href="/g/{{ post.genreShowName }}">Genre: {{ post.genreShowName }}</a>
 								<img src="/uploads/{{ post.profileImage }}" width="25px" height="25px">
 								<a href="/p/{{ post.username }}">{{ post.username }}</a>
 							</div>
-						</div>
+						</li>
 					</ul>
 				</div>
 			</div>

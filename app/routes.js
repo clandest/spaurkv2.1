@@ -9,27 +9,38 @@ var exec = require('child-process-promise').exec;
 module.exports = function(app, db, upload){
 
 	app.get('/', function(req, res, next){
+		var genreList;
 
-		db('posts')
+		db('genre')
+		.orderBy('name', 'asc')
+		.then(function(genres){
+			genreList = genres;
+		})
+		.then(function(){
+		return db('posts')
 		.join('users', 'users.uid', 'posts.user_id')
+		.join('category', 'category.id', 'posts.category_id')
+		.join('genre', 'genre.id', 'posts.genre_id')
 		.select('posts.id',
 						'posts.title',
 						'posts.artist',
 						'posts.start',
 						'posts.stop',
-						'posts.genre',
+						'genre.genreShowName',
 						'posts.tags',
-						'posts.category',
+						'category.categoryShowName',
 						'posts.audioFile',
 						'posts.imageFile',
 						'users.profileImage',
 						'users.username')
+		})
 		.then(function(posts){
-			console.log(posts);
 			res.render('index.html',{
 				title: 'Spaurk.net - Discover or be Discovered',
 				messages: req.flash('alert'),
 				posts: posts,
+				selectedGenre: "All",
+				genreList: genreList,
 				isLogged: req.session.isLogged,
 				user: req.session.user,
 				accountImage: req.session.accountImage,
@@ -40,8 +51,64 @@ module.exports = function(app, db, upload){
 		});
 	});
 
+	app.get('/g/:genre', function(req, res, next){
+		var genre = req.params.genre.toLowerCase();
+		var genreList;
+		var genreShowName;
 
-	app.get('/register', function(req, res, done){
+		db('genre')
+		.orderBy('name', 'asc')
+		.then(function(genres){
+			genreList = genres;
+		})
+		.then(function(){
+			return db('genre')
+			.where({ name: genre })
+		})
+		.then(function(genre){
+			genreShowName = genre[0].genreShowName;
+			return db('posts')
+				.where('posts.genre_id', genre[0].id)
+				.join('users', 'users.uid', 'posts.user_id')
+				.join('category', 'category.id', 'posts.category_id')
+				.join('genre', 'genre.id', 'posts.genre_id')
+				.select('posts.id',
+								'posts.title',
+								'posts.artist',
+								'posts.start',
+								'posts.stop',
+								'genre.genreShowName',
+								'posts.tags',
+								'posts.created_at',
+								'category.categoryShowName',
+								'posts.audioFile',
+								'posts.imageFile',
+								'users.profileImage',
+								'users.username')
+				.orderBy('created_at', 'desc')
+		})
+		.then(function(posts){
+			res.render('index.html',{
+				title: 'Spaurk.net - ' + genreShowName,
+				messages: req.flash('alert'),
+				posts: posts,
+				selectedGenre: genreShowName,
+				genreList: genreList,
+				isLogged: req.session.isLogged,
+				user: req.session.user,
+				accountImage: req.session.accountImage,
+			});
+		})
+		.catch(function(error){
+			console.log(error);
+			req.flash('alert', 'genre not found');
+			res.redirect('/');
+		});
+
+	});
+
+
+	app.get('/register', function(req, res, next){
 			if(req.session.user)
 				res.redirect('/p/' + req.session.user);	
 		else{
@@ -119,8 +186,10 @@ module.exports = function(app, db, upload){
 
 		username = username.trim();
 		username = username.toLowerCase();
-		
-		db('users').where({ user: username }).then(function(user){
+
+		db('users')
+		.where({ user: username })
+		.then(function(user){
 			if(user && validateHash(password, user[0].password) == true){
 				req.session.regenerate(function(){
 					req.session.user = user[0].username;
@@ -134,6 +203,10 @@ module.exports = function(app, db, upload){
 				req.flash('alert', 'Invalid username or password');
 				res.redirect('/register');
 			}
+		})
+		.catch(function(err){
+			req.flash('alert', 'Invalid username or password');
+			res.redirect('/register');
 		});
 	});
 
@@ -145,19 +218,47 @@ module.exports = function(app, db, upload){
 	});
 
 	app.get('/upload', function(req, res, next){
-		//if(!req.session.isLogged){
 		//	req.flash('alert', 'Login to make a new upload');
 		//	res.redirect('/')
 		//} else {
+		if(req.query.q){
+			var query = req.query.q;
+			query = query.toLowerCase();
+			db('genre')
+				.where('name', 'like', '%' + query + '%')
+			.then(function(search){
+				if(search == ''){
+					res.end('Genre does not exist, but will be created if posted. User created genres do not show up in the default subscription list.');
+				}else{
+					var genres = '';
+					for(var i = 0; i < search.length; i++){
+						genres +=  search[i].genreShowName + ' ';
+					}
+					res.send(genres);
+				}
+			})
+			.catch(function(err){
+				console.log(err);
+			});
+		}else{
+		db('category')
+		.then(function(categories){
 			res.render('upload.html', {
 				title: 'New Upload',
 				messages: req.flash('alert'),
 				user: req.session.user,
 				accountImage: req.session.accountImage,
-				isLogged: req.session.isLogged
+				isLogged: req.session.isLogged,
+				categories: categories
 			});
+		})
+		.catch(function(err){
+			console.log(err);
+		});
+		}
 	//	}
 	});
+
 	var manageUpload = upload.fields([{ name: 'fileElem', maxCount: 1 }, { name: 'imageElem', maxCount: 1 } ]);
 	app.post('/upload', manageUpload, function(req, res){
 		var user = req.session.user;
@@ -166,9 +267,15 @@ module.exports = function(app, db, upload){
 		var artist = req.body.artist;
 		var start = req.body.start;
 		var stop = req.body.stop - start;
-		var genre = req.body.genre;
 		var tags = req.body.tags;
-		var category = req.body.category;
+		var created_at = new Date();
+		var genreDisplayName = req.body.genre;
+		var categoryDisplayName = req.body.category;
+		var categoryName = categoryDisplayName.toLowerCase();
+		var categoryId;
+		var genreName = genreDisplayName.toLowerCase();
+		var genreId;
+
 		var audioFile = req.files['fileElem'][0].filename;
 		if(typeof req.files['imageElem'] !== "undefined")
 			var imageFile = req.files['imageElem'][0].filename;
@@ -215,15 +322,48 @@ module.exports = function(app, db, upload){
 						.select('uid')
 						.then(function(user){
 							userId = user[0].uid;	
+							return db('genre')
+								.where({ name: genre })
+							})
+							.then(function(genre){
+								if(genre == ''){
+									return db('genre')
+										.insert({ name: genreName, genreShowName: genreDisplayName })
+								}
+							})
+							.then(function(genre){
+								return db('genre')
+									.where({ name: genreName })
+							})
+							.then(function(genre){
+								genreId = genre[0].id;	
+								return db('category')
+									.where({ name : categoryName })
+							})
+							.then(function(category){
+								if(category == ''){
+									return db('category')
+										.insert({ name: categoryName, categoryShowName: categoryDisplayName })
+								}
+							})
+							.then(function(category){
+								return db('category')
+									.where({ name : categoryName })
+							})
+							.then(function(category){
+								categoryId = category[0].id;
+							})
+							.then(function(){
 							return db('posts')
 								.insert({ user_id: userId,
 													title: title,	
 													artist: artist,
 													start: start,
 													stop: stop,
-													genre: genre,
+													genre_id: genreId,
 													tags: tags,
-													category: category,
+													created_at: created_at,
+													category_id: categoryId,
 													audioFile: audioFileName,
 													imageFile: imageFile })
 						})
@@ -279,15 +419,48 @@ module.exports = function(app, db, upload){
 						.select('uid')
 						.then(function(user){
 							userId = user[0].uid;	
+							return db('genre')
+								.where({ name: genreName })
+							})
+							.then(function(genre){
+								if(genre == ''){
+									return db('genre')
+										.insert({ name: genreName, genreShowName: genreDisplayName })
+								}
+							})
+							.then(function(genre){
+								return db('genre')
+									.where({ name: genreName })
+							})
+							.then(function(genre){
+								genreId = genre[0].id;	
+								return db('category')
+									.where({ name : categoryName })
+							})
+							.then(function(category){
+								if(category == ''){
+									return db('category')
+										.insert({ name: categoryName, categoryShowName: categoryDisplayName })
+								}
+							})
+							.then(function(category){
+								return db('category')
+									.where({ name : categoryName })
+							})
+							.then(function(category){
+								categoryId = category[0].id;
+							})
+							.then(function(){
 							return db('posts')
 								.insert({ user_id: userId,
 													title: title,	
 													artist: artist,
 													start: start,
 													stop: stop,
-													genre: genre,
+													genre_id: genreId,
+													created_at: created_at,
 													tags: tags,
-													category: category,
+													category_id: categoryId,
 													audioFile: audioFileName,
 													imageFile: imageFile })
 						})
@@ -310,9 +483,7 @@ module.exports = function(app, db, upload){
 							}
 							console.log('there was a post error: ' + err);	
 							req.flash('alert', 'please log in');
-							var backURL = req.header('Referer') || '/';
-							res.redirect(backURL);
-
+							return res.redirect('/login');
 						});
 				})
 				.catch(function(err){
@@ -356,20 +527,23 @@ module.exports = function(app, db, upload){
 			return db('profiles')
 				.where({ user_id: profileUser[0].uid })
 		})
+
 		.then(function(profile){
 			profileFlashBanner = profile[0].flashBanner;
 			profileAbout = profile[0].about;
 			return db('posts')
 				.where({ user_id: profileUserId })
+				.join('category', 'category.id', 'posts.category_id')
+				.join('genre', 'genre.id', 'posts.genre_id')
 				.join('users', 'users.uid', 'posts.user_id')
 				.select('posts.id',
 								'posts.title',
 								'posts.artist',
 								'posts.start',
 								'posts.stop',
-								'posts.genre',
+								'genre.genreShowName',
 								'posts.tags',
-								'posts.category',
+								'category.categoryShowName',
 								'posts.audioFile',
 								'posts.imageFile',
 								'users.profileImage',
@@ -392,8 +566,97 @@ module.exports = function(app, db, upload){
 			});
 		})
 		.catch(function(error){
-			console.log(error);
+			req.flash('alert', 'User not found');
+			res.redirect('/');
 		});
+	});
+
+	app.post('/p/:user/update/about', upload.single('image'), function(req, res, next){
+		var user = req.session.user;
+		var profileUser = req.params.user;
+		var about = req.body.about;
+		var flashBanner = req.body.flashBanner;
+		var userId;
+		var oldProfileImage;
+		console.log(req.body);
+
+		if(req.file && user == profileUser){
+			db('users')
+			.where({ username: user })
+			.select('profileImage')
+			.then(function(profileImage){
+				oldProfileImage = profileImage[0].profileImage;	
+				return db('users')
+				.where({ username: user }).select('uid')
+				.update({ profileImage: req.file.filename })
+			})
+			.then(function(update){
+				return db('users')
+					.where({ username: user })
+					.select('profileImage')
+			})
+			.then(function(profileImage){
+				req.session.accountImage = profileImage[0].profileImage;
+				res.status('204').end();
+				if(oldProfileImage != 'defaultProfile.png'){
+					if(fs.existsSync('views/static/uploads/' + oldProfileImage)){
+							fs.unlinkSync('views/static/uploads/' + oldProfileImage);
+						}
+				}
+			})
+			.catch(function(error){
+				console.log(error);
+			});
+		}
+
+		if(flashBanner && user == profileUser){
+			db('users')
+			.where({ username: user }).select('uid')
+			.then(function(user){
+				userId = user[0].uid;
+				return db('users')
+					.where({ username: profileUser })
+					.select('uid');
+			})
+			.then(function(profileUser){
+				return db('profiles')
+					.where({ user_id: profileUser[0].uid })	
+					.update({
+						flashBanner: req.body.flashBanner
+					})
+			})
+			.then(function(profile){
+				res.status('204').end();
+			})
+			.catch(function(error){
+				console.log(error);
+			});
+		}
+
+		if(about && user == profileUser){
+			db('users')
+			.where({ username: user }).select('uid')
+			.then(function(user){
+				userId = user[0].uid;
+				return db('users')
+					.where({ username: profileUser })
+					.select('uid');
+			})
+			.then(function(profileUser){
+				return db('profiles')
+					.where({ user_id: profileUser[0].uid })	
+					.update({
+						about: req.body.about,
+					})
+			})
+			.then(function(profile){
+				res.status('204').end();
+			})
+			.catch(function(error){
+				console.log(error);
+			});
+		}
+
 	});
 
 	app.get('/watchlist/:id', function(req, res){
@@ -456,14 +719,16 @@ module.exports = function(app, db, upload){
 				.where('watchlist.user_id', profileUserId)
 				.join('posts', 'watchlist.post_id', 'posts.id')
 				.join('users', 'users.uid', 'posts.user_id')
+				.join('category', 'category.id', 'posts.category_id')
+				.join('genre', 'genre.id', 'posts.genre_id')
 				.select('posts.id',
 								'posts.title',
 								'posts.artist',
 								'posts.start',
 								'posts.stop',
-								'posts.genre',
+								'genre.genreShowName',
 								'posts.tags',
-								'posts.category',
+								'category.categoryShowName',
 								'posts.audioFile',
 								'posts.imageFile',
 								'users.profileImage',
@@ -520,7 +785,7 @@ module.exports = function(app, db, upload){
 				.select('comments.id',
 								'comments.body',
 								'comments.created_at',
-								'comments.replies_id',
+								'comments.replies',
 								'users.username',
 								'users.profileImage')
 		})
@@ -539,7 +804,8 @@ module.exports = function(app, db, upload){
 			});
 		})
 		.catch(function(error){
-			console.log(error);
+			req.flash('alert', 'Please log in to post a comment');
+			res.redirect('/login');
 		});
 
 	});
@@ -551,37 +817,40 @@ module.exports = function(app, db, upload){
 		var comment = req.body.newComment;
 		var userId;
 
-		db('users').where({ username: loginUser })
-		.then(function(user){
-			userId = user[0].uid;
-			return user[0].uid;
-		})
-		.then(function(userId){
-			return db('users').where({ username: profileUser });
-		})
-		.then(function(profileUser){
-			return profileUser[0].uid;
-		})
-		.then(function(profileId){
-			return db('profiles').where({ user_id: profileId });
-		})
-		.then(function(profile){
-			return profile[0].id;
-		})
-		.then(function(profileId){
-			return db('comments').insert({ 
-				body: comment, 
-				user_id: userId, 
-				profile_id: profileId,
-				created_at: new Date() });
-		})
-		.then(function(comment){
-			req.flash('alert', 'post successfull');
-			res.status('204').end();
-		})
-		.catch(function(error){
-			console.log(error);
-		});
+		if(loginUser){
+			db('users').where({ username: loginUser })
+			.then(function(user){
+				userId = user[0].uid;
+				return user[0].uid;
+			})
+			.then(function(userId){
+				return db('users').where({ username: profileUser });
+			})
+			.then(function(profileUser){
+				return profileUser[0].uid;
+			})
+			.then(function(profileId){
+				return db('profiles').where({ user_id: profileId });
+			})
+			.then(function(profile){
+				return profile[0].id;
+			})
+			.then(function(profileId){
+				return db('comments').insert({ 
+					body: comment, 
+					user_id: userId, 
+					profile_id: profileId,
+					created_at: new Date() });
+			})
+			.then(function(comment){
+				req.flash('alert', 'post successfull');
+				res.status('204').end();
+			})
+			.catch(function(error){
+				req.flash('alert', 'Please log in to post a comment');
+				res.redirect('/login');
+			});
+		}
 
 	});
 
@@ -593,38 +862,40 @@ module.exports = function(app, db, upload){
 		var commentId = req.body.commentId;
 		var userId;
 
-		db('users').where({ username: loginUser })
-		.then(function(user){
-			userId = user[0].uid;
-			return user[0].uid;
-		})
-		.then(function(userId){
-			return db('users').where({ username: profileUser }).select('uid');
-		})
-		.then(function(profileUser){
-			return profileUser[0].uid;
-		})
-		.then(function(profileId){
-			return db('profiles').where({ user_id: profileId }).select('id');
-		})
-		.then(function(profile){
-			return profile[0].id;
-		})
-		.then(function(profileId){
-			return db('comments').insert({ 
-				body: reply, 
-				user_id: userId, 
-				profile_id: profileId, 
-				replies_id: commentId, 
-				created_at: new Date() });
-		})
-		.then(function(reply){
-			res.status('204').end();
-		})
-		.catch(function(error){
-			console.log(error);
-		});
-
+		if(loginUser){
+			db('users').where({ username: loginUser })
+			.then(function(user){
+				userId = user[0].uid;
+				return user[0].uid;
+			})
+			.then(function(userId){
+				return db('users').where({ username: profileUser }).select('uid');
+			})
+			.then(function(profileUser){
+				return profileUser[0].uid;
+			})
+			.then(function(profileId){
+				return db('profiles').where({ user_id: profileId }).select('id');
+			})
+			.then(function(profile){
+				return profile[0].id;
+			})
+			.then(function(profileId){
+				return db('comments').insert({ 
+					body: reply, 
+					user_id: userId, 
+					profile_id: profileId, 
+					replies: commentId, 
+					created_at: new Date() });
+			})
+			.then(function(reply){
+				res.status('204').end();
+			})
+			.catch(function(error){
+				req.flash('alert', 'Please log in to post a comment');
+				res.redirect('/login');
+			});
+		}
 	});
 
 	app.get('/follows/:id', function(req, res, next){
@@ -642,6 +913,7 @@ module.exports = function(app, db, upload){
 					.where({ user_id: user[0].uid, follow_id: profileId })
 			})
 			.then(function(follow){
+				console.log(follow);
 				if(follow != ''){
 					return db('follows')
 						.where({ 'follows.user_id': follow[0].user_id, 

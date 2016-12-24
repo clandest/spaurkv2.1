@@ -1,23 +1,30 @@
 
 <script>
-if("{{ userProfile }}" == "{{ user }}"){
-  var main = document.querySelector("main");
-  main.addEventListener("click", function(e){
-		if(e.target.id == "profileImage"){
+
+
+  var edit = document.querySelector("#edit");
+	var profileImage = document.getElementById("profileImage");
+	
+	profileImage.addEventListener("click", function(e){
+		if(edit.getAttribute("data-isEdit") == 1){
 			var imageElem = document.getElementById("imageElem");
-			imageElem.click();
+			imageElem.click();	
 		}
-    if(e.target.id == "about" || e.target.id == "aboutContext"){
-      showAboutInput();
-    }
-    if(e.target.id == "flashBanner" || e.target.id == "flashBannerContext"){
-      showBannerInput();
-    }
-    if(e.target.className != "input" && e.target.id != "flashBanner" && e.target.id != "flashBannerContext" && e.target.id != "about" && e.target.id != "aboutContext"){
-      hideInput();
-    }
+	});
+
+  edit.addEventListener("click", function(e){
+		var profileImage = document.getElementById("profileImage");
+		if(edit.getAttribute("data-isEdit") == 0){
+			edit.setAttribute("data-isEdit", 1);
+			showBannerInput();
+			showAboutInput();
+			profileImage.style.border = "4px solid grey";
+		}else{
+			edit.setAttribute("data-isEdit", 0);
+			hideInput();
+			profileImage.style.border = "none";
+		}
   });
-}
 
 function handleImage(file){
 		var url = window.URL.createObjectURL(file[0]);
