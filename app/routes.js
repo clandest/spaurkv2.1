@@ -9,7 +9,27 @@ var exec = require('child-process-promise').exec;
 module.exports = function(app, db, upload){
 
 	app.get('/', function(req, res, next){
+		var user = req.session.user;
+		var userId;
 		var genreList;
+		var subList;
+
+		if(user){
+			db('users')
+			.where({ username: user })
+			.then(function(user){
+				userId = user[0].uid;
+				return db('subscriptons')
+					.where({ user_id: userId })
+					.join('genre', 'genre.id', 'subscriptons.genre_id')
+			})
+			.then(function(subscriptons){
+				subList = subscriptons;
+			})
+			.catch(function(err){
+				console.log('There was an error getting subscriptons ' + err);
+			});
+		}
 
 		db('genre')
 		.orderBy('name', 'asc')
@@ -26,13 +46,15 @@ module.exports = function(app, db, upload){
 						'posts.artist',
 						'posts.start',
 						'posts.stop',
-						'genre.genreShowName',
 						'posts.tags',
-						'category.categoryShowName',
 						'posts.audioFile',
 						'posts.imageFile',
+						'posts.created_at',
+						'genre.genreShowName',
+						'category.categoryShowName',
 						'users.profileImage',
 						'users.username')
+		.orderBy('created_at', 'desc')
 		})
 		.then(function(posts){
 			res.render('index.html',{
@@ -41,6 +63,7 @@ module.exports = function(app, db, upload){
 				posts: posts,
 				selectedGenre: "All",
 				genreList: genreList,
+				subList: subList,
 				isLogged: req.session.isLogged,
 				user: req.session.user,
 				accountImage: req.session.accountImage,
@@ -51,10 +74,199 @@ module.exports = function(app, db, upload){
 		});
 	});
 
+	app.get('/c/:category', function(req, res, next){
+		var user = req.session.user;
+		var category = req.params.category.toLowerCase();
+		var genreList;
+		var categoryId;
+		var genreId;
+		var subList;
+
+		if(user){
+			db('users')
+			.where({ username: user })
+			.then(function(user){
+				userId = user[0].uid;
+				return db('subscriptons')
+					.where({ user_id: userId })
+					.join('genre', 'genre.id', 'subscriptons.genre_id')
+			})
+			.then(function(subscriptons){
+				subList = subscriptons;
+			})
+			.catch(function(err){
+				console.log('There was an error getting subscriptons ' + err);
+			});
+		}
+
+
+		db('genre')
+		.orderBy('name', 'asc')
+		.then(function(genres){
+			genreList = genres;
+		 return db('category')
+			.where({ name: category })
+		})
+		.then(function(category){
+			categoryId = category[0].id;
+			return db('posts')
+				.where({ 'posts.category_id': categoryId })
+				.join('users', 'users.uid', 'posts.user_id')
+				.join('category', 'category.id', 'posts.category_id')
+				.join('genre', 'genre.id', 'posts.genre_id')
+				.select('posts.id',
+								'posts.title',
+								'posts.artist',
+								'posts.start',
+								'posts.stop',
+								'posts.tags',
+								'posts.audioFile',
+								'posts.imageFile',
+								'posts.created_at',
+								'genre.genreShowName',
+								'category.categoryShowName',
+								'users.profileImage',
+								'users.username')
+				.orderBy('created_at', 'desc')
+		})
+		.then(function(posts){
+			res.render('index.html',{
+				title: 'Spaurk.net - ' + req.params.category,
+				messages: req.flash('alert'),
+				posts: posts,
+				selectedGenre: req.params.genre,
+				genreList: genreList,
+				subList: subList,
+				isLogged: req.session.isLogged,
+				user: req.session.user,
+				accountImage: req.session.accountImage,
+			});
+
+		})
+		.catch(function(err){
+			console.log(err);
+		});
+
+	});
+
+	app.get('/c/:category/:genre', function(req, res,next){
+		var user = req.session.user;
+		var category = req.params.category.toLowerCase();
+		var genre = req.params.genre.toLowerCase();
+		var genreList;
+		var categoryId;
+		var genreId;
+		var subList;
+
+		if(user){
+			db('users')
+			.where({ username: user })
+			.then(function(user){
+				userId = user[0].uid;
+				return db('subscriptons')
+					.where({ user_id: userId })
+					.join('genre', 'genre.id', 'subscriptons.genre_id')
+			})
+			.then(function(subscriptons){
+				subList = subscriptons;
+			})
+			.catch(function(err){
+				console.log('There was an error getting subscriptons ' + err);
+			});
+		}
+
+
+		db('genre')
+		.orderBy('name', 'asc')
+		.then(function(genres){
+			genreList = genres;
+		 return db('category')
+			.where({ name: category })
+		})
+		.then(function(category){
+			categoryId = category[0].id;
+			return db('genre')
+				.where({ name: genre})
+		})
+		.then(function(genre){
+			genreId = genre[0].id;
+			return db('posts')
+				.where({ 'posts.category_id': categoryId, 'posts.genre_id': genreId })
+				.join('users', 'users.uid', 'posts.user_id')
+				.join('category', 'category.id', 'posts.category_id')
+				.join('genre', 'genre.id', 'posts.genre_id')
+				.select('posts.id',
+								'posts.title',
+								'posts.artist',
+								'posts.start',
+								'posts.stop',
+								'posts.tags',
+								'posts.audioFile',
+								'posts.imageFile',
+								'posts.created_at',
+								'genre.genreShowName',
+								'category.categoryShowName',
+								'users.profileImage',
+								'users.username')
+				.orderBy('created_at', 'desc')
+		})
+		.then(function(posts){
+			res.render('index.html',{
+				title: 'Spaurk.net - ' + req.params.category,
+				messages: req.flash('alert'),
+				posts: posts,
+				selectedGenre: req.params.genre,
+				genreList: genreList,
+				subList: subList,
+				isLogged: req.session.isLogged,
+				user: req.session.user,
+				accountImage: req.session.accountImage,
+			});
+
+		})
+		.catch(function(err){
+			console.log(err);
+		});
+	});
+
 	app.get('/g/:genre', function(req, res, next){
+		var user = req.session.user;
 		var genre = req.params.genre.toLowerCase();
 		var genreList;
 		var genreShowName;
+		var subList;
+		var subbed;
+		var posts;
+
+		if(user){
+			db('users')
+			.where({ username: user })
+			.then(function(user){
+				userId = user[0].uid;
+				return db('subscriptons')
+					.where({ user_id: userId })
+					.join('genre', 'genre.id', 'subscriptons.genre_id')
+			})
+			.then(function(subscriptons){
+				subList = subscriptons;
+				return db('genre')
+					.where({ name: genre })
+			})
+			.then(function(genre){
+				return db('subscriptons')
+					.where({ user_id: userId, genre_id: genre[0].id })
+			})
+			.then(function(result){
+				if(result != ''){
+					subbed = "unsub";
+				}
+				console.log(subbed);
+			})
+			.catch(function(err){
+				console.log('There was an error getting subscriptons ' + err);
+			});
+				
+		}
 
 		db('genre')
 		.orderBy('name', 'asc')
@@ -88,22 +300,115 @@ module.exports = function(app, db, upload){
 				.orderBy('created_at', 'desc')
 		})
 		.then(function(posts){
-			res.render('index.html',{
-				title: 'Spaurk.net - ' + genreShowName,
-				messages: req.flash('alert'),
-				posts: posts,
-				selectedGenre: genreShowName,
-				genreList: genreList,
-				isLogged: req.session.isLogged,
-				user: req.session.user,
-				accountImage: req.session.accountImage,
-			});
+			posts = posts;
+			if(user){
+				db('users')
+				.where({ username: user })
+				.then(function(user){
+					userId = user[0].uid;
+					return db('subscriptons')
+						.where({ user_id: userId })
+						.join('genre', 'genre.id', 'subscriptons.genre_id')
+				})
+				.then(function(subscriptons){
+					subList = subscriptons;
+					return db('genre')
+						.where({ name: genre })
+				})
+				.then(function(genre){
+					return db('subscriptons')
+						.where({ user_id: userId, genre_id: genre[0].id })
+				})
+				.then(function(result){
+					if(result != ''){
+						subbed = "unsub";
+					}
+				})
+				.then(function(){
+					res.render('index.html',{
+						title: 'Spaurk.net - ' + genreShowName,
+						messages: req.flash('alert'),
+						posts: posts,
+						selectedGenre: genreShowName,
+						genreList: genreList,
+						subList: subList,
+						isLogged: req.session.isLogged,
+						user: req.session.user,
+						subbed: subbed,
+						accountImage: req.session.accountImage,
+					});
+				})
+				.catch(function(err){
+					console.log('There was an error getting subscriptons ' + err);
+				});
+			}else{
+				res.render('index.html',{
+					title: 'Spaurk.net - ' + genreShowName,
+					messages: req.flash('alert'),
+					posts: posts,
+					selectedGenre: genreShowName,
+					genreList: genreList,
+					subList: subList,
+					isLogged: req.session.isLogged,
+					user: req.session.user,
+					subbed: subbed,
+					accountImage: req.session.accountImage,
+				});
+			}
 		})
 		.catch(function(error){
 			console.log(error);
 			req.flash('alert', 'genre not found');
 			res.redirect('/');
 		});
+	});
+
+
+	app.get('/g/:genre/subscribe', function(req, res, next){
+		var user = req.session.user;
+		var genre = req.params.genre;
+		var userId;
+		var genreId;
+
+		db('genre')
+		.where({ genreShowName: genre })
+		.then(function(genre){
+			genreId = genre[0].id;
+		})
+		.catch(function(err){
+			console.log(err);
+		});
+
+
+		if(user){
+			db('users')
+			.where({ username: user })
+			.select('uid')
+			.then(function(user){
+				userId = user[0].uid;
+				return db('subscriptons')
+					.where({ user_id: user[0].uid, genre_id: genreId })
+			})
+			.then(function(subscripton){
+				if(subscripton != ''){
+					return db('subscriptons')
+						.where({ 'subscriptons.user_id': subscripton[0].user_id, 
+									 'subscriptons.genre_id': subscripton[0].genre_id })
+						.del()
+				}else{
+					return db('subscriptons')
+						.insert({ user_id: userId, genre_id: genreId })
+				}
+			})
+			.then(function(success){
+				res.status('204').end();
+			})
+			.catch(function(error){
+				console.log('error with genre subscribe: ' + error);
+			});
+		}else{
+			res.status('204').end();
+		}
 
 	});
 
@@ -218,9 +523,9 @@ module.exports = function(app, db, upload){
 	});
 
 	app.get('/upload', function(req, res, next){
-		//	req.flash('alert', 'Login to make a new upload');
-		//	res.redirect('/')
-		//} else {
+		var user = req.session.user;
+		var subList;
+
 		if(req.query.q){
 			var query = req.query.q;
 			query = query.toLowerCase();
@@ -241,22 +546,58 @@ module.exports = function(app, db, upload){
 				console.log(err);
 			});
 		}else{
-		db('category')
-		.then(function(categories){
-			res.render('upload.html', {
-				title: 'New Upload',
-				messages: req.flash('alert'),
-				user: req.session.user,
-				accountImage: req.session.accountImage,
-				isLogged: req.session.isLogged,
-				categories: categories
-			});
+			if(user){
+			db('users')
+			.where({ username: user })
+			.then(function(user){
+				userId = user[0].uid;
+				return db('subscriptons')
+					.where({ user_id: userId })
+					.join('genre', 'genre.id', 'subscriptons.genre_id')
+			})
+			.then(function(subscriptons){
+				subList = subscriptons;
+			})
+			.then(function(){
+				return db('category')
+				.then(function(categories){
+					res.render('upload.html', {
+						title: 'New Upload',
+						messages: req.flash('alert'),
+						user: req.session.user,
+						subList: subList,
+						accountImage: req.session.accountImage,
+						isLogged: req.session.isLogged,
+						subList: subList,
+						categories: categories
+					});
 		})
 		.catch(function(err){
 			console.log(err);
 		});
+			})
+			.catch(function(err){
+				console.log('There was an error getting subscriptons ' + err);
+			});
+		}else{
+				db('category')
+				.then(function(categories){
+					res.render('upload.html', {
+						title: 'New Upload',
+						messages: req.flash('alert'),
+						user: req.session.user,
+						subList: subList,
+						accountImage: req.session.accountImage,
+						isLogged: req.session.isLogged,
+						subList: subList,
+						categories: categories
+					});
+				})
+				.catch(function(err){
+					console.log(err);
+				});
+			}
 		}
-	//	}
 	});
 
 	var manageUpload = upload.fields([{ name: 'fileElem', maxCount: 1 }, { name: 'imageElem', maxCount: 1 } ]);
@@ -291,30 +632,30 @@ module.exports = function(app, db, upload){
 
 
 		if(audioExtension[1] != 'mp3'){
-			var cmd = 'ffmpeg -i ' + audioLocation + ' -vn -ar 44100 -ac 2 -ab 192k -f mp3 ' + audioConvertedLocation;
-			exec(cmd)
-				.then(function(convert){
-					if(fs.existsSync(audioLocation)){
-						fs.unlinkSync(audioLocation);
-						console.log('deleted audio old format ' + audioLocation);
-					}
-					audioLocation = audioConvertedLocation;
-					audioDestination = audioConvertedDestination;
-					console.log("successfull convert");
-				})
+				var cmd = 'ffmpeg -i '+ audioLocation + ' -ss ' + start + ' -t ' + stop + ' -acodec copy ' + audioDestination;
+				exec(cmd)
+					.then(function(trim){
+						console.log("successfull trim");
+						if(fs.existsSync(audioLocation)){
+							fs.unlinkSync(audioLocation);
+							console.log('deleted audio after successful trim ' + audioLocation);
+						}
+					})
 				.then(function(trim){
-					var cmd = 'ffmpeg -i '+ audioLocation + ' -ss ' + start + ' -t ' + stop + ' -acodec copy ' + audioDestination;
-					exec(cmd)
-						.then(function(trim){
-							console.log("successfull trim");
-							if(fs.existsSync(audioLocation)){
-								fs.unlinkSync(audioLocation);
-								console.log('deleted audio new format ' + audioLocation);
-							}
-						})
-						.catch(function(err){
-							console.log("error trimming: " + err);
-						});
+				var cmd = 'ffmpeg -i ' + audioDestination + ' -vn -ar 44100 -ac 2 -ab 192k -f mp3 ' + audioConvertedDestination;
+				exec(cmd)
+					.then(function(convert){
+						if(fs.existsSync(audioDestination)){
+							fs.unlinkSync(audioDestination);
+							console.log('deleted audio old clip format ' + audioDestination);
+						}
+						audioLocation = audioConvertedLocation;
+						audioDestination = audioConvertedDestination;
+						console.log("successfull convert");
+					})
+					.catch(function(err){
+						console.log("error trimming: " + err);
+					});
 				})
 				.then(function(){
 					db('users')
@@ -323,7 +664,7 @@ module.exports = function(app, db, upload){
 						.then(function(user){
 							userId = user[0].uid;	
 							return db('genre')
-								.where({ name: genre })
+								.where({ name: genreName })
 							})
 							.then(function(genre){
 								if(genre == ''){
@@ -361,8 +702,8 @@ module.exports = function(app, db, upload){
 													start: start,
 													stop: stop,
 													genre_id: genreId,
-													tags: tags,
 													created_at: created_at,
+													tags: tags,
 													category_id: categoryId,
 													audioFile: audioFileName,
 													imageFile: imageFile })
@@ -507,6 +848,7 @@ module.exports = function(app, db, upload){
 
 	app.get('/p/:user', function(req, res){
 
+		var user = req.session.user;
 		var loginUser = req.session.user;
 		var profileUser = req.params.user;
 		var ProfileUsername;
@@ -514,8 +856,28 @@ module.exports = function(app, db, upload){
 		var profileImage;
 		var profileAbout;
 		var profileFlashBanner;
+		var subList;
 
 		profileUser = profileUser.toLowerCase();
+
+		if(user){
+			db('users')
+			.where({ username: user })
+			.then(function(user){
+				userId = user[0].uid;
+				return db('subscriptons')
+					.where({ user_id: userId })
+					.join('genre', 'genre.id', 'subscriptons.genre_id')
+			})
+			.then(function(subscriptons){
+				subList = subscriptons;
+			})
+			.catch(function(err){
+				console.log('There was an error getting subscriptons ' + err);
+			});
+				
+		}
+
 
 		db('users')
 		.where({ user: profileUser })
@@ -543,12 +905,13 @@ module.exports = function(app, db, upload){
 								'posts.stop',
 								'genre.genreShowName',
 								'posts.tags',
+								'posts.created_at',
 								'category.categoryShowName',
 								'posts.audioFile',
 								'posts.imageFile',
 								'users.profileImage',
 								'users.username')
-
+				.orderBy('created_at', 'desc')
 		})
 		.then(function(posts){
 			res.render('profile.html', {
@@ -561,6 +924,7 @@ module.exports = function(app, db, upload){
 				about: profileAbout,
 				isLogged: req.session.isLogged,
 				userProfile: profileUsername,
+				subList: subList,
 				profileUserId,
 				posts: posts
 			});
@@ -578,7 +942,6 @@ module.exports = function(app, db, upload){
 		var flashBanner = req.body.flashBanner;
 		var userId;
 		var oldProfileImage;
-		console.log(req.body);
 
 		if(req.file && user == profileUser){
 			db('users')
@@ -664,6 +1027,7 @@ module.exports = function(app, db, upload){
 		var postId = req.params.id;
 		var userId;
 
+
 		if(user){
 			db('users')
 			.where({ username: user })
@@ -697,12 +1061,32 @@ module.exports = function(app, db, upload){
 
 	app.get('/p/:user/watchlist', function(req, res){
 
+		var user = req.session.user;
 		var loginUser = req.session.user;
 		var profileUser = req.params.user;
 		var profileUserId;
 		var profileImage;
 		var profileAbout;
 		var profileFlashBanner;
+		var subList;
+		if(user){
+			db('users')
+			.where({ username: user })
+			.then(function(user){
+				userId = user[0].uid;
+				return db('subscriptons')
+					.where({ user_id: userId })
+					.join('genre', 'genre.id', 'subscriptons.genre_id')
+			})
+			.then(function(subscriptons){
+				subList = subscriptons;
+			})
+			.catch(function(err){
+				console.log('There was an error getting subscriptons ' + err);
+			});
+				
+		}
+
 
 		db('users')
 		.where({ username: profileUser })
@@ -731,9 +1115,9 @@ module.exports = function(app, db, upload){
 								'category.categoryShowName',
 								'posts.audioFile',
 								'posts.imageFile',
+								'posts.created_at',
 								'users.profileImage',
 								'users.username')
-
 		})
 		.then(function(watchlists){
 			res.render('watchlist.html', {
@@ -746,6 +1130,7 @@ module.exports = function(app, db, upload){
 				about: profileAbout,
 				isLogged: req.session.isLogged,
 				userProfile: profileUser,
+				subList: subList,
 				profileUserId: profileUserId,
 				posts: watchlists
 			});
@@ -756,17 +1141,34 @@ module.exports = function(app, db, upload){
 
 	});
 
-	app.get('/following', function(req, res, next){
-		res.render('following.html');
-	});
-
 	app.get('/p/:user/comments', function(req, res, next){
+		var user = req.session.user;
 		var loginUser = req.session.user;
 		var profileUser = req.params.user;
 		var profileUserId;
 		var profileImage;
 		var profileAbout;
 		var profileFlashBanner;
+		var subList;
+		
+		if(user){
+			db('users')
+			.where({ username: user })
+			.then(function(user){
+				userId = user[0].uid;
+				return db('subscriptons')
+					.where({ user_id: userId })
+					.join('genre', 'genre.id', 'subscriptons.genre_id')
+			})
+			.then(function(subscriptons){
+				subList = subscriptons;
+			})
+			.catch(function(err){
+				console.log('There was an error getting subscriptons ' + err);
+			});
+				
+		}
+
 
 		db('users')
 		.where('username', profileUser)
@@ -788,6 +1190,7 @@ module.exports = function(app, db, upload){
 								'comments.replies',
 								'users.username',
 								'users.profileImage')
+			.orderBy('created_at', 'desc')
 		})
 		.then(function(comments){
 			res.render('comments.html', {
@@ -799,6 +1202,7 @@ module.exports = function(app, db, upload){
 				userProfile: req.params.user,
 				about: profileAbout,
 				profileUserId: profileUserId,
+				subList: subList,
 				flashBanner: profileFlashBanner,
 				comments: comments
 			});
@@ -812,6 +1216,7 @@ module.exports = function(app, db, upload){
 
 	app.post('/p/:user/comment', function(req, res, next){
 
+		var user = req.session.user;
 		var loginUser = req.session.user;
 		var profileUser = req.params.user;
 		var comment = req.body.newComment;
@@ -856,6 +1261,7 @@ module.exports = function(app, db, upload){
 
 	app.post('/p/:user/comment/reply', function(req, res, next){
 
+		var user = req.session.user;
 		var loginUser = req.session.user;
 		var profileUser = req.params.user;
 		var reply = req.body.newReply;
@@ -913,7 +1319,6 @@ module.exports = function(app, db, upload){
 					.where({ user_id: user[0].uid, follow_id: profileId })
 			})
 			.then(function(follow){
-				console.log(follow);
 				if(follow != ''){
 					return db('follows')
 						.where({ 'follows.user_id': follow[0].user_id, 
@@ -938,6 +1343,7 @@ module.exports = function(app, db, upload){
 
 	app.get('/p/:user/following', function(req, res, next){
 
+		var user = req.session.user;
 		var loginUser = req.session.user;
 		var profileUser = req.params.user;
 		var flag = true;
@@ -945,6 +1351,25 @@ module.exports = function(app, db, upload){
 		var profileImage;
 		var profileAbout;
 		var profileFlashBanner;
+		var subList;
+		
+		if(user){
+			db('users')
+			.where({ username: user })
+			.then(function(user){
+				userId = user[0].uid;
+				return db('subscriptons')
+					.where({ user_id: userId })
+					.join('genre', 'genre.id', 'subscriptons.genre_id')
+			})
+			.then(function(subscriptons){
+				subList = subscriptons;
+			})
+			.catch(function(err){
+				console.log('There was an error getting subscriptons ' + err);
+			});
+				
+		}
 
 		db('users')
 		.where({ username: profileUser })
@@ -973,6 +1398,7 @@ module.exports = function(app, db, upload){
 				isLogged: req.session.isLogged,
 				userProfile: req.params.user,
 				profileUserId: profileUserId,
+				subList: subList,
 				flag: flag,
 				followers: follows
 			});
@@ -985,6 +1411,7 @@ module.exports = function(app, db, upload){
 
 	app.get('/p/:user/followers', function(req, res, next){
 
+		var user = req.session.user;
 		var loginUser = req.session.user;
 		var profileUser = req.params.user;
 		var flag = true;
@@ -992,6 +1419,26 @@ module.exports = function(app, db, upload){
 		var profileImage;
 		var profileAbout;
 		var profileFlashBanner;
+		var subList;
+		
+		if(user){
+			db('users')
+			.where({ username: user })
+			.then(function(user){
+				userId = user[0].uid;
+				return db('subscriptons')
+					.where({ user_id: userId })
+					.join('genre', 'genre.id', 'subscriptons.genre_id')
+			})
+			.then(function(subscriptons){
+				subList = subscriptons;
+			})
+			.catch(function(err){
+				console.log('There was an error getting subscriptons ' + err);
+			});
+				
+		}
+
 
 		db('users')
 		.where({ username: profileUser })
@@ -1003,7 +1450,6 @@ module.exports = function(app, db, upload){
 		})
 		.then(function(profile){
 			profileFlashBanner = profile[0].flashBanner;
-			profileAbout = profile[0].about;
 			return db('follows')
 				.where('follows.follow_id', profileUserId)
 				.join('users', 'follows.user_id', 'users.uid')
@@ -1020,6 +1466,7 @@ module.exports = function(app, db, upload){
 				isLogged: req.session.isLogged,
 				userProfile: req.params.user,
 				profileUserId: profileUserId,
+				subList: subList,
 				flag: flag,
 				followers: follows
 			});
@@ -1029,6 +1476,7 @@ module.exports = function(app, db, upload){
 		});
 
 	});
+
 
 }
 

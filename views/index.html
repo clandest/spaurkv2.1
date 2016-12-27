@@ -10,6 +10,10 @@
 
 {% block main %}
 <div id="posts" >
+{% if posts == '' %}
+<p>No posts here, go ahead an make one.</p>
+{% endif %}
+
 {% for post in posts %}
 <div class="post" id="{{ post.categoryShowName }}" data-id="{{ post.id }}"> <!-- START OF POST -->
 		<audio preload="auto" src="/uploads/{{ post.audioFile }}" id="audio{{ post.id }}" data-isPlaying="0" data-start="{{ post.start }}" data-stop="{{ post.stop }}"></audio>
@@ -38,7 +42,7 @@
 						<div class="dropdown">
 							<li><a href="#"><img src="/images/menu.png"></a></li>
 							<li class="dropdown-content">
-								<a href="/c/{{ post.categoryShowName }}" id="{{ post.categoryShowName }}">Category: {{ post.categoryShowName }}</a>
+								<a href="/c/{{ post.categoryShowName }}/{{ post.genreShowName}}" id="{{ post.categoryShowName }}">Category: {{ post.categoryShowName }}</a>
 								<a href="/g/{{ post.genreShowName }}">Genre: {{ post.genreShowName }}</a>
 								<img src="/uploads/{{ post.profileImage }}" width="25px" height="25px">
 								<a href="/p/{{ post.username }}">{{ post.username }}</a>

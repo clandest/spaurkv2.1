@@ -23,7 +23,7 @@
 <div class="comments" id="comments">
 <ul id="commentsList" data-replying="0">
 {% for comment in comments %}
-{% if comment.repliesd == NULL  %}
+{% if comment.replies == NULL  %}
 	<li>
 		<div class="comment" data-id="{{ comment.id }}">
 			<div class="profileImage"><a href="/p/{{ comment.username }}"><img src="/uploads/{{ comment.profileImage }}" width=50 height=50 title="{{ comment.username }}  {{ comment.created_at }}"></a></div>
@@ -231,7 +231,7 @@
 		newUl.appendChild(newLi);
 
 		if(childUl){
-			childUl.appendChild(newLi);
+			childUl.insertBefore(newLi, childUl.firstChild);
 			return(commentId);
 		}
 

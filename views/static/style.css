@@ -167,8 +167,8 @@ main{
 
 .bannerUser{
 		position: absolute;
-		top: 20px;
-		right: 20px;
+		top: 0;
+		right: 25px;
 }
 
 .bannerUser ul{
@@ -208,9 +208,10 @@ nav.profile li{
 	}
 
 	.follow{
-		position: absolute;
-		right: 0px;
-		top: -25px;
+		width: 100px;
+		margin: 0 auto;
+		display: block;
+		text-align: center;
 	}
 
 	#sound-cloud{
@@ -304,7 +305,7 @@ li.dropdown{
 		padding: 12px 16px;
 		overflow: hidden;
 		z-index: 3;
-		right: 0;
+		right: -45px;
 }
 
 .dropdown:hover .dropdown-content{
@@ -493,8 +494,8 @@ li.dropdown{
 
 .bannerUser{
 		position: absolute;
-		right: 50px;
-		top: 25px;
+		right: 25px;
+		top: 20px;
 }
 
 .bannerUser ul{
@@ -688,9 +689,10 @@ li.dropdown{
 	}
 
 	.follow{
-		position: absolute;
-		right: 0px;
-		top: -25px;
+		width: 100px;
+		margin: 0 auto;
+		display: block;
+		text-align: center;
 	}
 
 	#sound-cloud{
@@ -823,11 +825,11 @@ li.dropdown{
 	border: 3px solid #e1b025;
 }
 
-#LFG{
+#LookingForGroup{
 	border: 3px solid #e9543b;
 }
 
-#LFM{
+#LookingForMore{
 	border: 3px solid #8c50a0;
 }
 
@@ -945,12 +947,9 @@ span#start, span#stop{
     width: 300px;
     height: 40px;
     position: absolute;
-    right: 0px;
-    top: 0px;
+    right: 25px;
+		top: 15px;
 }
-
-
-
 
 .profileName{
 	margin: 0 auto;

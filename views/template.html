@@ -22,11 +22,9 @@
 							<div class="profile">
                 <a href="/p/{{ user }}"><img src="/uploads/{{ accountImage }}" height="50px" width="50px"></a>
 							<div class="dropdown-content">
-									<a href="?Alternative">Alternative</a>
-									<a href="">Electronic</a>
-									<a href="">R&B</a>
-									<a href="">Pop</a>
-									<a href="">Rock</a>
+              {% for sub in subList %}
+              <a href="/g/{{ sub.genreShowName }}" id="{{ sub.name }}">{{ sub.genreShowName }}</a>
+              {% endfor %}
 							</div>
 
 							</div>
@@ -49,18 +47,16 @@
         {% endif %}
 				</div>
 				<div class="bannerUser mobile-only">
-         {% if isLogged %} 
+        {% if isLogged %} 
           <ul>
           <li>
 						<div class="dropdown">
 							<div class="profile">
                 <a href="/p/{{ user }}"><img src="/uploads/{{ accountImage }}" height="50px" width="50px"></a>
 							<div class="dropdown-content">
-									<a href="?Alternative">Alternative</a>
-									<a href="">Electronic</a>
-									<a href="">R&B</a>
-									<a href="">Pop</a>
-									<a href="">Rock</a>
+              {% for sub in subList %}
+              <a href="/g/{{ sub.genreShowName }}" id="{{ sub.name }}">{{ sub.genreShowName }}</a>
+              {% endfor %}
 							</div>
 
 							</div>
@@ -84,6 +80,8 @@
 	<input type="file" id="imageElem" name="image" accept="image/*" style="display:none" onchange="handleImage(this.files)">
   </form>
 
+      {% if  user != userProfile %}
+      <div class="follow"><a href="/follows/{{ profileUserId }}" class="addFollow" id="follow">[ Follow ]</a></div>{% endif %}
 		<div class="editProfile">
 			<div class="profileImage">
 				<img id="profileImage" src="/uploads/{{ profileImage }}" height="100px" width="100px">
@@ -94,8 +92,6 @@
 		</div>
 		<span class="profileName">{{ userProfile }}</span>
 		<div class="profileSocial">
-      {% if  user != userProfile %}
-      <div class="follow"><a href="/follows/{{ profileUserId }}" class="addFollow" id="follow">[ Follow ]</a></div>{% endif %}
       <ul>
 			<li id="sound-cloud"></li>
 			<li id="band-camp"></li>
@@ -125,9 +121,8 @@
 		<div class="row">
 			<nav class="col-12">
 				<ul id="nav">
-					<li><a href="#">Front Page</a></li>
           <div class="dropdown">
-            <li><a href="#">Genre: {{ selectedGenre }} </a></li>
+            <li><a href="" class="ignore-click">Genre: {{ selectedGenre }} </a></li>
             <div class="dropdown-content">
               <a href="/">All</a>
               {% for genre in genreList %}
@@ -136,7 +131,13 @@
             </div>
           </div>
 					<li class="rightFloat desktop-only"><a href="/upload">New Post</a></li>
-					<li class="rightFloat"><a href="#">Subscribe to Genre</a></li>
+          {% if selectedGenre != 'All' %}
+          {% if subbed %}
+          <li class="rightFloat"><a href="/g/{{ selectedGenre }}/subscribe" id="sub" class="unsub">UnSubscribe</a></li>
+          {% else %}
+          <li class="rightFloat"><a href="/g/{{ selectedGenre }}/subscribe" id="sub" class="sub">Subscribe</a></li>
+          {% endif %}
+          {% endif %}
 				</ul>
 			</nav>
 		</div>
@@ -179,17 +180,36 @@
 <script>
 
 	var follow = document.querySelector("#follow");
+  var sub = document.querySelector("#sub");
 
   if('{{ user }}' != ''){
+    sub.addEventListener("click", function(event){
+      if(event.target.className == "sub"){
+        event.target.className = "unsub";
+        event.target.innerText = "UnSubscribe";
+      }else{
+        event.target.className = "sub";
+        event.target.innerText = "Subscribe";
+      }
+
+    });
+
     follow.addEventListener("click", function(event){
       if(event.target.className == "addFollow"){
         event.target.className = "removeFollow";
-        event.target.innerText = "[ Unfollow]";
+        event.target.innerText = "[ Unfollow ]";
       }else{
         event.target.className = "addFollow";
         event.target.innerText = "[ Follow ]";
       }
 
+    });
+  }
+
+  for (var i = 0; i < document.getElementsByClassName("ignore-click").length; i++) {
+    document.getElementsByClassName("ignore-click")[i].addEventListener('click', function (event) {
+      event.preventDefault();
+      return false;
     });
   }
 

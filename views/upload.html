@@ -35,8 +35,8 @@
 						<div class="dropdown">
 							<li><a href="#"><img src="/images/menu.png"></a></li>
 							<div class="dropdown-content">
-								<a href="#" id="">Category: </a>
-								<a href="#">Genre: </a>
+								<a href="#" class="categoryPreview" id="">Category: </a>
+								<a href="#" id="genrePreview">Genre: </a>
 								<img src="/uploads/{{ accountImage }}" width="25px" height="25px">
 								<a href="">{{ user }}</a>
 							</div>
@@ -99,7 +99,7 @@
 		<label for="categoryList">Category</label>
 		<select name="categoryList" id="category">
 			{% for category in categories %}
-			<option value="{{ category.name | capitalize }}">{{ category.name | capitalize }}</option>
+			<option value="{{ category.categoryShowName }}">{{ category.categoryShowName }}</option>
 			{% endfor %}
 		</select>
 
@@ -154,7 +154,9 @@ var select = document.getElementById("category");
 var genre = document.getElementById("genre");
 genre.addEventListener("keyup", function(event){
 	var inputTrimmed = event.target.value.trim();
+	var genrePreview = document.getElementById('genrePreview');
 	genre.value = inputTrimmed;
+	genrePreview.innerText = "Genre: " + genre.value;
 	showGenres(inputTrimmed);
 });
 
@@ -179,6 +181,9 @@ function showGenres(str){
 select.addEventListener("change", function(event){
 	var value = select.options[select.selectedIndex].value;
 	var post = document.querySelector(".post");
+	var categoryPreview = document.querySelector('.categoryPreview');
+	categoryPreview.innerText = "Category: " + value;
+	categoryPreview.setAttribute('id', value);
 	post.setAttribute('id', value);
 });
 	var isIE = /*@cc_on!@*/false || !!document.documentMode;
@@ -414,13 +419,17 @@ function showMetaData(data){
 				var genre =  result.genre;
 				var genre = genre[0].replace(/[^A-Z0-9]+/gi, "");
 
-				console.log(genre)
 				showGenres(genre)
-				
+
+				var value = select.options[select.selectedIndex].value;
+
 
 				document.getElementById('title').value = result.title;
 				document.getElementById('artist').value = result.artist;
 				document.getElementById('genre').value = genre;
+				document.getElementById('genrePreview').innerText = "Genre: " + genre;
+				document.querySelector('.categoryPreview').innerText = "Category: " + value;
+				document.querySelector('.categoryPreview').setAttribute('id', value);
 				document.getElementById('postSong').innerText = result.title;
 				document.getElementById('postArtist').innerText = result.artist;
 		}
