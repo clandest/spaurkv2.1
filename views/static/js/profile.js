@@ -16,6 +16,7 @@
 		var profileImage = document.getElementById("profileImage");
 		if(edit.getAttribute("data-isEdit") == 0){
 			edit.setAttribute("data-isEdit", 1);
+			edit.src = "/images/save_icon.png";
 			showBannerInput();
 			showAboutInput();
 			profileImage.style.border = "4px solid grey";
@@ -23,6 +24,7 @@
 			edit.setAttribute("data-isEdit", 0);
 			hideInput();
 			profileImage.style.border = "none";
+			edit.src = "/images/edit_icon.png";
 		}
   });
 

@@ -141,6 +141,7 @@ main{
 	.postFooter li{
 		display: inline-block;
 		width: 40px;
+		margin: 0 auto;
 	}
 
 	.postFooter ul:after {
@@ -151,19 +152,56 @@ main{
 	}
 
 	.postFooter #watching{
-		width: 17px;
-		height: 19px;
+		width: 20px;
+		height: 20px;
 		display: inline-block;
+		margin: 0 auto;
 	}
 	.postFooter .watch{
-		background-image: url("/images/bookmark.png");
-		background-size: 17px 19px;
+		background-image: url("/images/watchlist_icon.png");
+		background-size: 20px 20px;
 	}
 
 	.postFooter .watching{
-		background-image: url("/images/bookmarkClick.png");
+		background-image: url("/images/watchlist_icon_active.png");
+		background-size: 20px 20px;
+	}
+
+	.postFooter #comment{
+		width: 20px;
+		height: 20px;
+		display: inline-block;
+		margin: 0 auto;
+	}
+
+	.postFooter .comment{
+		background-image: url("/images/comment_icon.png");
+		background-size: 20px 22px;
+	}
+
+	.postFooter .commenting{
+		background-image: url("/images/comment_icon_active.png");
+		background-size: 20px 22px;
+	}
+
+	.postFooter #spaurk{
+		width: 20px;
+		height: 20px;
+		display: inline-block;
+		margin: 0 auto;
+	}
+
+	.postFooter .spaurk{
+		background-image: url("/images/spaurk_icon.png");
+		background-size: 20px 20px;
+	}
+
+	.postFooter .spaurking{
+		background-image: url("/images/spaurk_icon_active.png");
 		background-size: 17px 19px;
 	}
+
+
 
 .bannerUser{
 		position: absolute;
@@ -328,9 +366,6 @@ li.dropdown{
 	text-align: center;
 }
 
-
-
-
 @media (max-width: 768px){
 
 
@@ -465,6 +500,27 @@ li.dropdown{
 	#new-reply{
 		
 	}
+
+.form-postComment{
+	padding: 25px;
+	width: 100%;
+}
+
+.form-postComment .post{
+	position: relative;
+	margin: 0 auto;
+	top: -100px;
+	background-color: black;
+}
+
+.form-postComment #commentForm{
+	position: relative;
+	width: 100%;
+	margin: 0 auto;
+	top: -90px;
+}
+
+
 
 
 }
@@ -748,6 +804,8 @@ li.dropdown{
 	border-radius: 1px 30px;
 }
 
+
+
 .upload-form{
 	padding-top: 180px;
 }
@@ -762,7 +820,28 @@ li.dropdown{
 	right: 170px;
 	top: -85px;
 }
+
+.form-postComment{
+	padding: 25px;
+	width: 100%;
 }
+
+.form-postComment .post{
+	position: relative;
+	margin: 0 auto;
+	top: -100px;
+	background-color: black;
+}
+
+.form-postComment #commentForm{
+	position: relative;
+	width:550px;
+	margin: 0 auto;
+	top: -90px;
+}
+
+}
+
 .postFooter .dropdown{
 		width:22px;
 		height:22px;
@@ -1018,7 +1097,7 @@ span#start, span#stop{
 	float: right;
 	position: relative;
 	margin-bottom: 5px;
-	border-bottom: solid 1px grey;
+	border-left: solid 3px grey;
 }
 
 .message{
@@ -1044,7 +1123,7 @@ header .profile a{
 
 .comment{
 	width: 100%;
-	border-bottom: 1px solid white;
+	border-left: solid 3px white;
 	float: left;
 	position: relative;
 	margin-bottom: 5px;

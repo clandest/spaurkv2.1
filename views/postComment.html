@@ -1,0 +1,477 @@
+
+{% extends "template.html" %}
+
+{% block message %}{{ messages }}{% endblock %}
+
+{% block profile %}{% endblock %}
+
+{% block profileNav %}{% endblock %}
+
+{% block main %}
+
+<div class="form form-postComment">
+<div class="post" id="{{ post.categoryShowName }}" data-id="{{ post.id }}"> <!-- START OF POST -->
+		<audio preload="auto" src="/uploads/{{ post.audioFile }}" id="audio{{ post.id }}" data-isPlaying="0" data-start="{{ post.start }}" data-stop="{{ post.stop }}"></audio>
+
+			<div class="postHeader">
+				<div class="postArtist" id="postArtist">{{ post.artist }} is the title</div>
+				<div class="postTitle" id="postSong">{{ post.title }}</div>
+			</div>
+			<div class="postBackground" id="albumImage-{{ post.id }}" {% if post.imageFile %}style="background-image: url(/uploads/{{ post.imageFile }});" {% endif %}>
+			<div class="postBody">
+				<div class="postContent">
+			<div id="playTime-{{ post.id }}" class="playTime"><span><div id="start-{{ post.id }}" class="start">0:00</div> / <div id="stop-{{ post.id }}" class="stop">0:00</div></span></div>
+					<span id="playBtn" class="play" data-id="{{ post.id }}"></span>
+					<div class="postTags" id="postTags-{{ post.id }}">
+						{% if post.tags != '' %}
+						<span>{{ post.tags }}</span>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+			</div>
+			<div class="postFooter">
+				<div class="postMenu">
+					<ul>
+						<li><a href="/spaurk/{{ post.id }}"><span id="spaurk" class="spaurk"></span></a></li>
+						<li><a href="/comments/{{ post.id }}"><span id="comment" class="commenting"></span></a></li>
+						<li><a href="/watchlist/{{ post.id }}"><span id="watching" class="watch"></span></a></li>
+						<div class="dropdown">
+							<li><a href="#"><img src="/images/menu.png"></a></li>
+							<li class="dropdown-content">
+								<a href="/c/{{ post.categoryShowName }}/{{ post.genreShowName}}" id="{{ post.categoryShowName }}">Category: {{ post.categoryShowName }}</a>
+								<a href="/g/{{ post.genreShowName }}">Genre: {{ post.genreShowName }}</a>
+								<img src="/uploads/{{ post.profileImage }}" width="25px" height="25px">
+								<a href="/p/{{ post.username }}">{{ post.username }}</a>
+							</div>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div> <!-- END OF POST -->
+{% if user %}
+<form name="commentForm" id="commentForm" action="" enctype="multipart/form-data" method="POST">
+	<div class="new-comment">
+			<textarea name="newComment" id="new-comment" form="commentForm"></textarea>
+		<div class="commentMenu">
+			<input type="submit" id="submit-btn" value="Post Comment">
+		</div>
+	</div>
+</form>
+{% endif %}
+<div class="comments" id="comments">
+<ul id="commentsList" data-replying="0">
+{% for comment in comments %}
+{% if comment.replies == NULL  %}
+	<li>
+		<div class="comment" data-id="{{ comment.id }}">
+			<div class="profileImage"><a href="/p/{{ comment.username }}"><img src="/uploads/{{ comment.profileImage }}" width=50 height=50 title="{{ comment.username }}  {{ comment.created_at }}"></a></div>
+			<p>{{ comment.body }}</p>
+			<div class="commentMenu">
+				<a href="" id="collapse-btn">[ - ]</a>{% if user %}<a href="" id="reply-btn" data-reply="0">[Reply]</a><a href="">[Report]</a>{% endif %}
+			</div>
+		</div>
+		<ul class="replies">
+		{% for reply in comments %}
+		{% if comment.id == reply.replies %}
+			<li>
+				<div class="reply" data-id="{{ reply.id }}">
+					<div class="profileImage"><a href="/p/{{ reply.username }}"><img src="/uploads/{{ reply.profileImage }}" width=40 height=40 title="{{ reply.username }}  {{ reply.created_at }}"></a></div>
+				<p>{{ reply.body }}</p>
+				<div class="commentMenu">
+					{% if user %}<a href="">[Report]</a> {% endif %}
+				</div>
+				</div>
+			</li>
+		{% endif %}
+		{% endfor %}
+		</ul>
+	</li>
+{% endif %}
+{% endfor %}
+
+</ul>
+</div>
+<div class="clear"></div>
+
+</div>
+
+<script>
+	var comments = document.getElementById('commentsList');
+	var commentForm = document.getElementById('commentForm');
+	var newComment = document.getElementById('new-comment');
+
+	commentForm.addEventListener('submit', function(e){
+		e.preventDefault();
+
+		if(newComment.value == ''){
+			alert('please fill out a full comment');	
+		}else{
+			var message = newComment.value;
+			createComment(message);	
+
+			var messageData = {};
+			messageData['newComment'] = message;
+
+			var req = new XMLHttpRequest();
+			req.open("POST", "/comments/{{ post.id }}/comment", true);
+			req.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+			req.send(JSON.stringify(messageData));
+			newComment.value = '';
+		}
+	});
+
+	comments.addEventListener('click', function(e){
+		if(e.target.id == "reply-btn"){
+			e.preventDefault();
+			var commentsList = document.getElementById("commentsList");
+			if(commentsList.dataset.replying == "0"){
+				var replying = document.querySelector(".replying");
+				createReplyInput(e.target);
+				commentsList.dataset.replying = "1";
+			}else{
+				removeReplyInput();
+				commentsList.dataset.replying = "0";
+			}
+		}
+
+		if(e.target.id == "collapse-btn"){
+			e.preventDefault();
+			collapseReplies(e.target);
+		}
+
+		if(e.target.id == "postReply"){
+			e.preventDefault();
+			var message = document.getElementById("new-reply").value;
+			var parentUl = e.target.parentNode.parentNode.parentNode.parentNode.parentNode;
+			var commentId = createReply(parentUl, message);
+
+			var messageData = {};
+			messageData['newReply'] = message;
+			messageData['commentId'] = commentId;
+			
+			var req = new XMLHttpRequest();
+			req.open("POST", "/comments/{{ post.id }}/comment/reply", true);
+			req.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+			req.send(JSON.stringify(messageData));
+			removeReplyInput();
+		}
+	});
+
+	function createComment(message){
+		var newLi = document.createElement('li');
+		var newComment = document.createElement('div');
+		var newProfileImage = document.createElement('div');
+		var newContext = document.createElement('p');
+		var newMenu = document.createElement('div');
+
+		newComment.className = "comment";
+		newProfileImage.className = "profileImage";
+		newProfileImage.innerHTML = '<img src="/uploads/{{ accountImage }}" width="50" height="50" title="{{ user }}">';
+		newMenu.className = "commentMenu";
+
+		newContext.innerText = message; 
+
+		newComment.appendChild(newProfileImage);
+		newComment.appendChild(newContext);
+		newComment.appendChild(newMenu);
+
+		newLi.appendChild(newComment);
+
+		comments.insertBefore(newLi, comments.firstChild);
+	}
+
+	function createReplyInput(event){	
+		var newReply = document.createElement('div');
+		var newForm = document.createElement('form');
+		var newInput = document.createElement('textarea');
+		var newMenu = document.createElement('div');
+		var newSubmit = document.createElement('input');
+		var parentUl = event.parentNode.parentNode.parentNode;
+		var childUl = parentUl.querySelector('.replies');
+		var newUl = document.createElement('ul');
+		var newLi = document.createElement('li');
+
+
+		newReply.className = "new-reply";
+		newForm.setAttribute("name", "newReply");
+		newForm.setAttribute("id", "newReply");
+		newForm.setAttribute("action", "");
+		newForm.setAttribute("method", "POST");
+		newForm.setAttribute("enctype", "multipart/form-data");
+		newMenu.className = "commentMenu";
+		newInput.setAttribute("name", "newReply");
+		newInput.setAttribute("id", "new-reply");
+		newInput.setAttribute("form", "newReply");
+		newSubmit.setAttribute("type", "submit");
+		newSubmit.setAttribute("id", "postReply");
+		newSubmit.setAttribute("value", "Post Reply");
+		newUl.className = "replies";
+		newLi.className= "replying";
+
+		newReply.appendChild(newInput);
+		newReply.appendChild(newSubmit);
+		newForm.appendChild(newReply);
+
+		newLi.appendChild(newForm);
+		newUl.appendChild(newLi);
+
+		if(childUl){
+			childUl.insertBefore(newLi, childUl.firstChild);
+			childUl.style.display = "block";
+		}
+
+		if(!childUl){
+			parentUl.appendChild(newUl);
+			newUl.style.display = "block";
+		}
+	}
+
+	function removeReplyInput(){
+		var commentsList = document.getElementById("commentsList");
+		var replyInput = document.querySelector('.replying');
+		commentsList.dataset.replying = "0";
+		replyInput.parentElement.removeChild(replyInput);
+	}
+
+	function createReply(event, message){
+		var newUl = document.createElement('ul');
+		var newLi = document.createElement('li');
+		var newReply = document.createElement('div');
+		var newProfileImage = document.createElement('div');
+		var newContext = document.createElement('p');
+		var newMenu = document.createElement('div');
+
+		var parentUl = event;
+		var childUl = parentUl.querySelector('.replies');
+
+		var comment = parentUl.querySelector(".comment");
+		var commentId = comment.getAttribute("data-id");
+
+		newUl.className = "replies";
+		newReply.className = "reply";
+		newProfileImage.className = "profileImage";
+		newProfileImage.innerHTML = '<img src="/uploads/{{ accountImage }}" width="40" height="40" title="{{ user }}">';
+		newMenu.className = "commentMenu";
+
+		newContext.innerText = message;
+		newMenu.innerHTML = '<a href="">[Report]</a>';
+
+		newReply.appendChild(newProfileImage);
+		newReply.appendChild(newContext);
+		newReply.appendChild(newMenu);
+		
+		newLi.appendChild(newReply);
+		newUl.appendChild(newLi);
+
+		if(childUl){
+			childUl.insertBefore(newLi, childUl.firstChild);
+			return(commentId);
+		}
+
+		if(!childUl){
+			parentUl.appendChild(newUl);
+			return(commentId);
+		}
+
+	}
+
+	function collapseReplies(event){
+		var comment = event.parentNode.parentNode.parentNode;
+		var replies = comment.querySelector('.replies');
+
+		if(replies.style.display == "none"){
+			replies.style.display = "block";
+			event.innerText = "[ - ]";
+		}else{
+			replies.style.display = "none";
+			event.innerText = "[ + ]";
+			removeReplyInput();
+		}
+
+
+		
+	}
+</script>
+
+
+<script>
+	var posts = document.querySelectorAll("#playBtn");
+	var postsArray = [].slice.call(posts);
+
+	var watching = document.querySelectorAll("#watching");
+	var watchingArray = [].slice.call(watching);
+
+		watchingArray.forEach(function(watch, i){
+			watch.addEventListener("click", function(e){
+				if(event.target.className == "watch"){
+					event.target.className = "watching";
+				}else{
+					event.target.className = "watch";
+				}
+			});
+
+		});
+
+	postsArray.forEach(function(post, i){
+		var audio = document.getElementById("audio" + post.getAttribute("data-id"));
+		var album = document.getElementById("albumImage-" + post.getAttribute("data-id"));
+		var tags = document.getElementById("postTags-" + post.getAttribute("data-id"));
+		var time = document.getElementById("playTime-" + post.getAttribute("data-id"));
+		var albumImages = [];
+		setDataTime(audio);
+		albumImages[i] = album.style.backgroundImage;
+		showTagsMouseOut(audio, tags, album, time, albumImages[i]);
+		audio.addEventListener("loadeddata", function(){
+			setPreviewDuration(audio, post.getAttribute("data-id"));
+		});
+		post.onclick = function(){
+			if(audio.readyState > 0)
+				playPause(post, audio, tags, album, time, albumImages[i]);
+		}
+
+		post.onmouseover = function(){
+			showAlbumMouseOver(audio, tags, album, time, albumImages[i]);	
+		}
+
+		post.onmouseleave = function(){
+			showTagsMouseOut(audio, tags, album, time, albumImages[i]);
+		}
+	});
+
+function playPause(post, audio, tags, album, time, albumImages){
+	var sounds = document.getElementsByTagName("audio");
+	var id = post.getAttribute("data-id");
+
+	if(post.className == "play"){
+		if(audio.src){
+			for(var i = 0; i < sounds.length; i++){
+				if(audio.id != sounds[i].id){
+					var start = convertStringToSeconds(sounds[i].dataset.start);
+					if(sounds[i].readyState > 0)
+						sounds[i].currentTime = 0;
+					sounds[i].pause();
+					sounds[i].setAttribute("data-isPlaying", "0");
+					posts[i].className = "play";
+					showTags(tags, album, time);
+					flushScreen(id);
+				}
+			}
+			post.className = "pause";
+			audio.play();
+			audio.setAttribute("data-isPlaying", "1");
+			showAlbum(tags, album, time, albumImages);
+			audio.ontimeupdate = function(){
+				setPreviewCurrentTime(audio, post.getAttribute("data-id"));
+				setStopTime(post, audio);
+			}
+		}
+	}else{
+		post.className = "play";
+		audio.pause();
+		audio.setAttribute("data-isPlaying", "0");
+		showTags(tags, album, time);
+	}
+}
+
+function flushScreen(id){
+	var posts = document.querySelectorAll(".post");
+	var postsArray = [].slice.call(posts);
+	postsArray.forEach(function(post, i){
+		var album = document.getElementById("albumImage-" + post.getAttribute("data-id"));
+		var tags = document.getElementById("postTags-" + post.getAttribute("data-id"));
+		var time = document.getElementById("playTime-" + post.getAttribute("data-id"));
+		if(post.dataset.id != id){
+			showTags(tags, album, time);
+		}
+	});
+	
+}
+
+function setDataTime(audio){
+	var time = audio.getAttribute("data-start");
+	var setTime = convertStringToSeconds(time);
+	if(audio.readyState > 0)
+		audio.currentTime = 0;
+}
+
+function setStopTime(post, audio){
+	var end = audio.getAttribute("data-stop");
+	var endTime = convertStringToSeconds(end);
+
+	if(audio.currentTime >= endTime){
+		audio.pause();
+		audio.setAttribute("data-isPlaying", "0");
+		audio.currentTime = 0;
+		post.className = "play";
+	}
+}
+
+function showAlbum(postTags, postImage, playTime, albumImage){
+	postTags.style.visibility = "hidden";
+	if(albumImage)
+		postImage.style.backgroundSize = "180px 146px";
+	playTime.style.display = "block";
+}
+
+function showAlbumMouseOver(audio, postTags, postImage, playTime, albumImage){
+	var isPlayed = audio.getAttribute("data-isPlaying");
+	if(isPlayed == 0)
+		showAlbum(postTags, postImage, playTime, albumImage);
+}
+
+function showTags(postTags, postImage, playTime){
+	postTags.style.visibility = "visible";
+	postImage.style.backgroundSize = "0 0";
+	playTime.style.display = "none";
+}
+
+function showTagsMouseOut(audio, postTags, postImage, playTime, albumImage){
+	var isPlayed = audio.getAttribute("data-isPlaying");
+	if(isPlayed == 0)
+		showTags(postTags, postImage, playTime, albumImage);
+}
+
+function setPreviewCurrentTime(audio, id){
+	var start = document.getElementById("start-" + id);
+
+	start.innerText = convertSecondsToString(audio.currentTime);
+}
+
+function setPreviewDuration(audio, id){
+	var stop = document.getElementById("stop-" + id);
+
+	stop.innerText = convertSecondsToString(audio.duration);
+}
+
+function padTimer(time, padding){
+	var oldTime = "" + time;
+	var pad = padding;
+	return pad.substring(0, pad.length - oldTime.length) + oldTime;
+}
+
+function convertSecondsToString(seconds){
+	var min = Math.floor(seconds / 60);
+	var sec = Math.floor(seconds - min * 60);
+
+	sec = padTimer(sec, "00");
+
+	return min + ":" + sec;
+}
+
+function convertStringToSeconds(str){
+	var result = str.split(":");
+	var min = parseInt(result[0], 10);
+	var sec = parseInt(result[1], 10);
+
+	var newMin = min * 60;
+	var newSec = newMin + sec;
+	var newTime = newSec;
+
+	return newTime;
+}
+
+
+</script>
+
+{% endblock %}

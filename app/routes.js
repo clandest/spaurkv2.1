@@ -29,6 +29,7 @@ module.exports = function(app, db, upload){
 			.catch(function(err){
 				console.log('There was an error getting subscriptons ' + err);
 			});
+				
 		}
 
 		db('genre')
@@ -74,10 +75,209 @@ module.exports = function(app, db, upload){
 		});
 	});
 
+	app.get('/spaurk/:postId', function(req, res, next){
+		res.status('204').end();
+	});
+
+	app.get('/comments/:postId', function(req, res, next){
+		var user = req.session.user;
+		var loginUser = req.session.user;
+		var postId = req.params.postId;
+		var genreShowName;
+		var genreList;
+		var subList;
+		var subbed;
+		var post;
+
+		db('genre')
+		.orderBy('name', 'asc')
+		.then(function(genres){
+			genreList = genres;
+		})
+
+
+		db('posts')
+		.where('posts.id', postId )
+		.join('users', 'users.uid', 'posts.user_id')
+		.join('category', 'category.id', 'posts.category_id')
+		.join('genre', 'genre.id', 'posts.genre_id')
+		.select('posts.id',
+						'posts.title',
+						'posts.artist',
+						'posts.start',
+						'posts.stop',
+						'posts.tags',
+						'posts.audioFile',
+						'posts.imageFile',
+						'posts.created_at',
+						'genre.genreShowName',
+						'category.categoryShowName',
+						'users.profileImage',
+						'users.username')
+		.orderBy('created_at', 'desc')
+		.then(function(posts){
+			post = posts[0];
+			if(user){
+				db('users')
+				.where({ username: user })
+				.then(function(user){
+					userId = user[0].uid;
+					return db('subscriptons')
+						.where({ user_id: userId })
+						.join('genre', 'genre.id', 'subscriptons.genre_id')
+				})
+				.then(function(subscriptons){
+					subList = subscriptons;
+					return db('genre')
+						.where({ genreShowName: post.genreShowName })
+				})
+				.then(function(genre){
+					genreShowName = genre[0].genreShowName;
+					return db('subscriptons')
+						.where({ user_id: userId, genre_id: genre[0].id })
+				})
+				.then(function(result){
+					if(result != ''){
+						subbed = "unsub";
+					}
+				})
+				.then(function(){
+					return db('postComments')
+							.where('post_id', postId)
+							.join('users', 'postComments.user_id', 'users.uid')
+							.select('postComments.id',
+											'postComments.body',
+											'postComments.created_at',
+											'postComments.replies',
+											'users.username',
+											'users.profileImage')
+						.orderBy('created_at', 'desc')
+					})
+					.then(function(comments){
+					res.render('postComment.html', {
+						title: 'Spaurk.net - Discover or be Discovered',
+						messages: req.flash('alert'),
+						post: post,
+						isLogged: req.session.isLogged,
+						user: req.session.user,
+						accountImage: req.session.accountImage,
+						selectedGenre: genreShowName,
+						genreList: genreList,
+						subList: subList,
+						subbed: subbed,
+						comments: comments
+					});
+				})
+				.catch(function(err){
+					console.log('There was an error getting subscriptons ' + err);
+				});
+			}else{
+					db('postComments')
+						.where('post_id', postId)
+						.join('users', 'postComments.user_id', 'users.uid')
+						.select('postComments.id',
+										'postComments.body',
+										'postComments.created_at',
+										'postComments.replies',
+										'users.username',
+										'users.profileImage')
+					.orderBy('created_at', 'desc')
+				.then(function(comments){
+				res.render('postComment.html', {
+					title: 'Spaurk.net - Discover or be Discovered',
+					messages: req.flash('alert'),
+					post: post,
+					selectedGenre: post.genreShowName,
+					isLogged: req.session.isLogged,
+					user: req.session.user,
+					accountImage: req.session.accountImage,
+					genreList: genreList,
+					subList: subList,
+					comments: comments
+				});
+				})
+				.catch(function(err){
+					console.log(err);
+				});
+			}
+		})
+		.catch(function(error){
+			req.flash('alert', 'Please log in to post a comment');
+			console.log(error);
+		});
+
+	});
+
+	app.post('/comments/:postId/comment', function(req, res, next){
+
+		var user = req.session.user;
+		var loginUser = req.session.user;
+		var postId = req.params.postId;
+		var comment = req.body.newComment;
+		var userId;
+
+		if(loginUser){
+			db('users').where({ username: loginUser })
+			.then(function(user){
+				userId = user[0].uid;
+			})
+			.then(function(){
+				return db('postComments').insert({ 
+					body: comment, 
+					user_id: userId, 
+					post_id: postId,
+					created_at: new Date() });
+			})
+			.then(function(comment){
+				req.flash('alert', 'post successfull');
+				res.status('204').end();
+			})
+			.catch(function(error){
+				req.flash('alert', 'Please log in to post a comment');
+				res.redirect('/login');
+			});
+		}
+
+	});
+
+	app.post('/comments/:postId/comment/reply', function(req, res, next){
+
+		var user = req.session.user;
+		var loginUser = req.session.user;
+		var postId = req.params.postId;
+		var reply = req.body.newReply;
+		var commentId = req.body.commentId;
+		var userId;
+
+		if(loginUser){
+			db('users').where({ username: loginUser })
+			.then(function(user){
+				userId = user[0].uid;
+			})
+			.then(function(){
+				return db('postComments').insert({ 
+					body: reply, 
+					user_id: userId, 
+					post_id: postId, 
+					replies: commentId, 
+					created_at: new Date() });
+			})
+			.then(function(reply){
+				res.status('204').end();
+			})
+			.catch(function(error){
+				req.flash('alert', 'Please log in to post a comment');
+				res.redirect('/login');
+			});
+		}
+	});
+
+
 	app.get('/c/:category', function(req, res, next){
 		var user = req.session.user;
 		var category = req.params.category.toLowerCase();
 		var genreList;
+		var genreShowName;
 		var categoryId;
 		var genreId;
 		var subList;
@@ -136,6 +336,7 @@ module.exports = function(app, db, upload){
 				posts: posts,
 				selectedGenre: req.params.genre,
 				genreList: genreList,
+				selectedGenre: genreShowName,
 				subList: subList,
 				isLogged: req.session.isLogged,
 				user: req.session.user,
@@ -153,10 +354,13 @@ module.exports = function(app, db, upload){
 		var user = req.session.user;
 		var category = req.params.category.toLowerCase();
 		var genre = req.params.genre.toLowerCase();
+		var genreShowName = req.params.genre;
 		var genreList;
 		var categoryId;
 		var genreId;
 		var subList;
+		var subbed;
+		var posts;
 
 		if(user){
 			db('users')
@@ -169,10 +373,22 @@ module.exports = function(app, db, upload){
 			})
 			.then(function(subscriptons){
 				subList = subscriptons;
+				return db('genre')
+					.where({ name: genre })
+			})
+			.then(function(genre){
+				return db('subscriptons')
+					.where({ user_id: userId, genre_id: genre[0].id })
+			})
+			.then(function(result){
+				if(result != ''){
+					subbed = "unsub";
+				}
 			})
 			.catch(function(err){
 				console.log('There was an error getting subscriptons ' + err);
 			});
+				
 		}
 
 
@@ -211,18 +427,61 @@ module.exports = function(app, db, upload){
 				.orderBy('created_at', 'desc')
 		})
 		.then(function(posts){
-			res.render('index.html',{
-				title: 'Spaurk.net - ' + req.params.category,
-				messages: req.flash('alert'),
-				posts: posts,
-				selectedGenre: req.params.genre,
-				genreList: genreList,
-				subList: subList,
-				isLogged: req.session.isLogged,
-				user: req.session.user,
-				accountImage: req.session.accountImage,
-			});
-
+			posts = posts;
+			if(user){
+				db('users')
+				.where({ username: user })
+				.then(function(user){
+					userId = user[0].uid;
+					return db('subscriptons')
+						.where({ user_id: userId })
+						.join('genre', 'genre.id', 'subscriptons.genre_id')
+				})
+				.then(function(subscriptons){
+					subList = subscriptons;
+					return db('genre')
+						.where({ name: genre })
+				})
+				.then(function(genre){
+					return db('subscriptons')
+						.where({ user_id: userId, genre_id: genre[0].id })
+				})
+				.then(function(result){
+					if(result != ''){
+						subbed = "unsub";
+					}
+				})
+				.then(function(){
+					res.render('index.html',{
+						title: 'Spaurk.net - ' + genreShowName,
+						messages: req.flash('alert'),
+						posts: posts,
+						selectedGenre: genreShowName,
+						genreList: genreList,
+						subList: subList,
+						isLogged: req.session.isLogged,
+						user: req.session.user,
+						subbed: subbed,
+						accountImage: req.session.accountImage,
+					});
+				})
+				.catch(function(err){
+					console.log('There was an error getting subscriptons ' + err);
+				});
+			}else{
+				res.render('index.html',{
+					title: 'Spaurk.net - ' + genreShowName,
+					messages: req.flash('alert'),
+					posts: posts,
+					selectedGenre: genreShowName,
+					genreList: genreList,
+					subList: subList,
+					isLogged: req.session.isLogged,
+					user: req.session.user,
+					subbed: subbed,
+					accountImage: req.session.accountImage,
+				});
+			}
 		})
 		.catch(function(err){
 			console.log(err);
@@ -260,7 +519,6 @@ module.exports = function(app, db, upload){
 				if(result != ''){
 					subbed = "unsub";
 				}
-				console.log(subbed);
 			})
 			.catch(function(err){
 				console.log('There was an error getting subscriptons ' + err);

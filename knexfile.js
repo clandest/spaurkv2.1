@@ -5,6 +5,8 @@ module.exports = {
   development: {
     client: 'postgresql',
     connection: {
+			user: 'postgres',
+			password: 'password',
       database: 'spaurk-dev',
     },
 		migrations: {

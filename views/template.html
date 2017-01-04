@@ -22,9 +22,11 @@
 							<div class="profile">
                 <a href="/p/{{ user }}"><img src="/uploads/{{ accountImage }}" height="50px" width="50px"></a>
 							<div class="dropdown-content">
+								{% if subList %}
               {% for sub in subList %}
               <a href="/g/{{ sub.genreShowName }}" id="{{ sub.name }}">{{ sub.genreShowName }}</a>
               {% endfor %}
+							{% endif %}
 							</div>
 
 							</div>
@@ -87,7 +89,7 @@
 				<img id="profileImage" src="/uploads/{{ profileImage }}" height="100px" width="100px">
 			</div>
       {% if user == userProfile %}
-			<div class="edit"><img id="edit" data-isEdit="0" src="/images/edit_icon.png" width="20px" height="20px"></div>
+			<div class="edit"><img id="edit" data-isEdit="0" src="/images/edit_icon.png" width="20px" height="22px"></div>
       {% endif %}
 		</div>
 		<span class="profileName">{{ userProfile }}</span>
